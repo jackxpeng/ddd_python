@@ -9,3 +9,22 @@ def test_allocate_reduces_available_quantity():
     batch.allocate(line)
     
     assert batch.available_quantity == 60
+
+def test_allocate_fails_not_enough():
+    batch = Batch("batch-002", "DESK", qty=100)
+    line = OrderLine("order-002", "DESK", qty=101)
+    
+    assert batch.can_allocate(line) == False
+
+def test_allocate_fails_wrong_sku():
+    batch = Batch("batch-002", "DESK", qty=100)
+    line = OrderLine("order-002", "CHAIR", qty=1)
+    
+    assert batch.can_allocate(line) == False
+    
+def test_allocate_ok_enough():
+    batch = Batch("batch-002", "DESK", qty=100)
+    line = OrderLine("order-002", "DESK", qty=100)
+    
+    assert batch.can_allocate(line) == True
+    
