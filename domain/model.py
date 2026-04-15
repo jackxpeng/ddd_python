@@ -14,14 +14,19 @@ class Batch:
         self.sku = sku
         self.qty = qty
         self.eta = eta
-        self.allocations: list[OrderLine] = []
+        self.allocations: set[OrderLine] = set()
 
     @property
     def available_quantity(self):
         return self.qty - sum(o.qty for o in self.allocations)
 
-    def allocate(self, order: OrderLine):
-        self.allocations.append(order)
+    def allocate(self, order: OrderLine) -> bool:
+        if order in self.allocations:
+            return False
+        if not self.can_allocate(order):
+            return False
+        self.allocations.add(order)
+        return True
     
     def can_allocate(self, order: OrderLine) -> bool:
         if self.sku != order.sku:

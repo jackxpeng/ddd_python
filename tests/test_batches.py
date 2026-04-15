@@ -27,4 +27,11 @@ def test_allocate_ok_enough():
     line = OrderLine("order-002", "DESK", qty=100)
     
     assert batch.can_allocate(line) == True
+
+def test_allocation_is_idempotent():
+    batch = Batch("batch-002", "DESK", qty=100)
+    line = OrderLine("order-002", "DESK", qty=1)
     
+    assert batch.allocate(line) == True
+
+    assert batch.allocate(line) == False
