@@ -1,4 +1,3 @@
-from typing import Optional
 from datetime import date
 from dataclasses import dataclass
 
@@ -16,7 +15,7 @@ class OrderLine:
 
 class Batch:
     def __init__(
-        self, ref_id: str, sku: str, qty: int, eta: Optional[date | None] = None
+        self, ref_id: str, sku: str, qty: int, eta: date | None = None
     ):
         self.ref_id = ref_id
         self.sku = sku
