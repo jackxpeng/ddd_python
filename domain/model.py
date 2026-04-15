@@ -3,6 +3,10 @@ from datetime import date
 from dataclasses import dataclass
 
 
+class OutOfStock(Exception):
+    pass
+
+
 @dataclass(frozen=True)
 class OrderLine:
     order_id: str
@@ -45,10 +49,10 @@ class Batch:
         return self.eta > other.eta
 
 
-def allocate(order: OrderLine, batches: list[Batch]) -> Optional[str | None]:
+def allocate(order: OrderLine, batches: list[Batch]) -> str:
     batches.sort()
     for b in batches:
         if b.can_allocate(order):
             b.allocate(order)
             return b.ref_id
-    return None
+    raise OutOfStock(f"Out of stock for sku {order.sku} and quantity {order.qty}")
