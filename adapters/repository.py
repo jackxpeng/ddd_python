@@ -20,3 +20,14 @@ class FakeRepository(AbstractRepository):
     
     def get(self, ref_id: str) -> Batch | None:
         return next((b for b in self.batches if b.ref_id == ref_id), None)
+
+class SqlAlchemyRepository(AbstractRepository):
+    def __init__(self, session):
+        self.session = session
+    
+    def add(self, batch: Batch):
+        self.session.add(batch)
+    
+    def get(self, ref_id: str) -> Batch | None:
+        return self.session.query(Batch).filter_by(ref_id=ref_id).first()
+    
