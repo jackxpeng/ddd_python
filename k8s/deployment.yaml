@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: allocation-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: allocation-api
+  template:
+    metadata:
+      labels:
+        app: allocation-api
+    spec:
+      initContainers:
+        - name: db-migrator
+          image: allocation-api:latest
+          imagePullPolicy: Never
+          command: ["python", "scripts/create_tables.py"]
+          env:
+          - name: DB_HOST
+            value: "postgres" # Connects via the K8s Service name!
+          - name: PYTHONPATH
+            value: "/code"
+
+      containers:
+      - name: allocation-api
+        image: allocation-api:latest
+        imagePullPolicy: Never  # use the local image
+        ports:
+        - containerPort: 80
+        env:
+        - name: FLASK_APP
+          value: "entrypoints.flask_app"
+        - name: DB_HOST
+          value: "postgres"

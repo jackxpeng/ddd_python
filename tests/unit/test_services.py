@@ -1,7 +1,8 @@
 import pytest
 from domain.model import Batch, OrderLine
-from adapters.repository import FakeRepository
-from services.services import InvalidSku, allocate
+from adapters.repository import AbstractRepository
+from service_layer.services import InvalidSku, allocate
+
 
 class FakeSession:
     def __init__(self):
@@ -9,6 +10,19 @@ class FakeSession:
     
     def commit(self):
         self.committed = True
+
+class FakeRepository(AbstractRepository):
+    def __init__(self):
+        self.batches = []
+    
+    def add(self, batch: Batch):
+        self.batches.append(batch)
+    
+    def get(self, ref_id: str) -> Batch | None:
+        return next((b for b in self.batches if b.ref_id == ref_id), None)
+
+    def list(self):
+        return self.batches
 
 def test_returns_allocation():
     repo = FakeRepository()

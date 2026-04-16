@@ -15,19 +15,6 @@ class AbstractRepository(ABC):
     def list(self):
         raise NotImplementedError
 
-class FakeRepository(AbstractRepository):
-    def __init__(self):
-        self.batches = []
-    
-    def add(self, batch: Batch):
-        self.batches.append(batch)
-    
-    def get(self, ref_id: str) -> Batch | None:
-        return next((b for b in self.batches if b.ref_id == ref_id), None)
-
-    def list(self):
-        return self.batches
-
 class SqlAlchemyRepository(AbstractRepository):
     def __init__(self, session):
         self.session = session
