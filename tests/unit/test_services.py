@@ -2,7 +2,7 @@ import pytest
 from adapters.uow import AbstractUnitOfWork
 from domain.model import Batch, OrderLine
 from adapters.repository import AbstractRepository
-from service_layer.services import InvalidSku, allocate
+from service_layer.services import InvalidSku, allocate, deallocate
 
 
 class FakeSession:
@@ -71,3 +71,32 @@ def test_commits():
         allocate(line.order_id, line.sku, line.qty, uow)
 
     assert uow.committed
+
+def test_deallocate():
+    '''
+    Customers cancel orders. It happens all the time. Right now, if someone 
+    cancels their order for a HIPSTER-WORKBENCH, that stock remains allocated to
+    a dead order. We have absolutely no way to put it back into the available 
+    inventory pool.
+    I need a new feature: deallocate. When a cancellation comes in, I need the 
+    system to find that batch, remove the customer's order line, and free up that 
+    quantity for the next buyer.
+    '''
+    line = OrderLine("order01", "DESK", 1)
+
+    with FakeUnitOfWork() as uow:
+        uow.batches.add(Batch("ref01", "BED", 100))
+        uow.batches.add(Batch("ref02", "DESK", 10))
+
+        ref_id = allocate(line.order_id, line.sku, line.qty, uow)
+
+        batch = uow.batches.get("ref02")
+        assert(batch is not None)
+        assert(batch.available_quantity == 10-1)
+
+        deallocate(line.order_id, line.sku, line.qty, uow)
+
+        batch = uow.batches.get("ref02")
+        assert(batch is not None)
+        assert(batch.available_quantity == 10)
+    

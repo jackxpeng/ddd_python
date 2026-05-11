@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from adapters import orm
 from adapters.repository import SqlAlchemyRepository
 from domain import model
-from services import services
+from service_layer import services
 import config
 
 orm.start_mappers()

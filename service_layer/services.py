@@ -16,3 +16,11 @@ def allocate(order_id: str, sku: str, qty: int, uow: AbstractUnitOfWork) -> str:
         uow.commit()
         return ref_id
            
+def deallocate(order_id: str, sku: str, qty: int, uow: AbstractUnitOfWork) -> None:
+    with uow:
+        batches = [b for b in uow.batches.list() if b.sku == sku]
+        if not batches:
+            return
+        line = model.OrderLine(order_id, sku, qty)
+        model.deallocate(line, batches)
+        uow.commit()

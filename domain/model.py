@@ -55,3 +55,9 @@ def allocate(order: OrderLine, batches: list[Batch]) -> str:
             b.allocate(order)
             return b.ref_id
     raise OutOfStock(f"Out of stock for sku {order.sku} and quantity {order.qty}")
+
+def deallocate(order: OrderLine, batches: list[Batch]) -> None:
+    for b in batches:
+        if order in b.allocations:
+            b.allocations.discard(order)
+            break
