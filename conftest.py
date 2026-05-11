@@ -29,6 +29,15 @@ def session(in_memory_db):
     clear_mappers()
 
 
+@pytest.fixture
+def session_factory(in_memory_db):
+    start_mappers()
+    session_factory = sessionmaker(bind=in_memory_db)
+    yield session_factory
+    session_factory.close_all()
+    clear_mappers()
+
+
 @pytest.fixture(scope="session")
 def postgres_db():
     """Automates a tunnel to K8s Postgres and manages the schema."""
