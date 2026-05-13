@@ -6,7 +6,7 @@ import time
 import pytest
 import requests
 from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker, clear_mappers
+from sqlalchemy.orm import sessionmaker, clear_mappers, close_all_sessions
 
 from adapters.orm import metadata_obj, start_mappers
 import config
@@ -34,7 +34,7 @@ def session_factory(in_memory_db):
     start_mappers()
     session_factory = sessionmaker(bind=in_memory_db)
     yield session_factory
-    session_factory.close_all()
+    close_all_sessions()
     clear_mappers()
 
 
@@ -53,7 +53,7 @@ def postgres_db():
     # Tell SQLAlchemy to use this random port instead of 5432
     os.environ["DB_PORT"] = str(port)
     os.environ["DB_HOST"] = "127.0.0.1"
-    engine = create_engine(config.get_postgres_uri())
+    engine = create_engine(config.get_postgres_uri(), isolation_level="REPEATABLE READ")
 
     for _ in range(10):
         try:
@@ -65,23 +65,57 @@ def postgres_db():
         process.terminate()
         pytest.fail("Failed to connect to Postgres via tunnel.")
 
-    yield engine
-
     # NUKE AND PAVE (Using the real K8s database!)
     metadata_obj.drop_all(engine)
     metadata_obj.create_all(engine)
+
+    yield engine
+
+    # Tell SqlAlchemy to clearnly close the connection pool
+    engine.dispose()
 
     print(f"\n[Teardown] Closing K8s Postgres tunnel on port {port}...")
     process.terminate()
     process.wait()
 
+@pytest.fixture
+def postgres_session_factory(postgres_db):
+    start_mappers()
+    # Notice we use the Postgres engine here
+    factory = sessionmaker(bind=postgres_db)
+    yield factory
+    clear_mappers()
+
+@pytest.fixture(autouse=True)
+def clear_db_between_tests(postgres_db):
+    """
+    Automatically runs before EVERY test to ensure a clean slate.
+    Using DELETE instead of TRUNCATE is often faster for small test datasets.
+    """
+    with postgres_db.begin() as conn:
+        # Delete data from all tables (order matters if you have foreign keys!)
+        conn.execute(text("DELETE FROM allocations"))
+        conn.execute(text("DELETE FROM orderlines"))
+        conn.execute(text("DELETE FROM batches"))
+        conn.execute(text("DELETE FROM products"))
+    
+    yield # The test runs here, with a perfectly clean database
 
 # 2. the reusable data setup/teardown fixture
 @pytest.fixture
 def add_stock(postgres_db):
     def _add_stock(lines):
+        added_skus = set()
         with postgres_db.begin() as conn:
             for ref, sku, qty, eta in lines:
+                if sku not in added_skus:
+                    conn.execute(
+                        text(
+                            "INSERT INTO products (sku, version_number) VALUES (:sku, :version_number)"
+                        ),
+                        {"sku": sku, "version_number": 0},
+                    )
+                    added_skus.add(sku)
                 conn.execute(
                     text(
                         "INSERT INTO batches (ref_id, sku, qty, eta) VALUES (:ref, :sku, :qty, :eta)"

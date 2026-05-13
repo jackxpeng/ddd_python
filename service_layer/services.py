@@ -8,19 +8,22 @@ class InvalidSku(Exception):
 # returns ref id of the batched allocated from
 def allocate(order_id: str, sku: str, qty: int, uow: AbstractUnitOfWork) -> str:
     with uow:
-        batches = [b for b in uow.batches.list() if b.sku == sku]
-        if not batches:
+        product = uow.products.get(sku)
+        if product is None:
             raise InvalidSku(f"Invalid sku: {sku}")
         line = model.OrderLine(order_id, sku, qty)
-        ref_id = model.allocate(line, batches)
+        ref_id = product.allocate(line)
         uow.commit()
-        return ref_id
+
+    return ref_id
            
 def deallocate(order_id: str, sku: str, qty: int, uow: AbstractUnitOfWork) -> None:
     with uow:
-        batches = [b for b in uow.batches.list() if b.sku == sku]
-        if not batches:
+        product = uow.products.get(sku)
+        if not product:
             return
+        
         line = model.OrderLine(order_id, sku, qty)
-        model.deallocate(line, batches)
+        product.deallocate(line)
+        
         uow.commit()

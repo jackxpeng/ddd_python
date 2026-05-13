@@ -8,7 +8,7 @@ import config
 get_session = sessionmaker(bind=create_engine(config.get_postgres_uri()))
 
 class AbstractUnitOfWork(ABC):
-    batches: repository.AbstractRepository
+    products: repository.AbstractRepository
     
     def __enter__(self):
         return self
@@ -31,7 +31,7 @@ class SqlAlchemyUnitOfWork(AbstractUnitOfWork):
     
     def __enter__(self):
         self.session = self.session_factory()
-        self.batches = SqlAlchemyRepository(self.session)
+        self.products = SqlAlchemyRepository(self.session)
         return super().__enter__()
 
     def __exit__(self, exc_type, exc, tb):

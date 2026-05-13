@@ -1,14 +1,14 @@
 from abc import ABC, abstractmethod
 
-from domain.model import Batch
+from domain.model import Product
 
 class AbstractRepository(ABC):
     @abstractmethod
-    def add(self, batch: Batch):
+    def add(self, product: Product):
         raise NotImplementedError
 
     @abstractmethod
-    def get(self, ref_id: str) -> Batch | None:
+    def get(self, sku: str) -> Product | None:
         raise NotImplementedError
 
     @abstractmethod
@@ -19,12 +19,12 @@ class SqlAlchemyRepository(AbstractRepository):
     def __init__(self, session):
         self.session = session
     
-    def add(self, batch: Batch):
-        self.session.add(batch)
+    def add(self, product: Product):
+        self.session.add(product)
     
-    def get(self, ref_id: str) -> Batch | None:
-        return self.session.query(Batch).filter_by(ref_id=ref_id).first()
+    def get(self, sku: str) -> Product | None:
+        return self.session.query(Product).filter_by(sku=sku).first()
 
     def list(self):
-        return self.session.query(Batch).all()
+        return self.session.query(Product).all()
     

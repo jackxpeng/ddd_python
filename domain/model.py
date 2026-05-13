@@ -14,9 +14,7 @@ class OrderLine:
 
 
 class Batch:
-    def __init__(
-        self, ref_id: str, sku: str, qty: int, eta: date | None = None
-    ):
+    def __init__(self, ref_id: str, sku: str, qty: int, eta: date | None = None):
         self.ref_id = ref_id
         self.sku = sku
         self.qty = qty
@@ -48,16 +46,24 @@ class Batch:
         return self.eta > other.eta
 
 
-def allocate(order: OrderLine, batches: list[Batch]) -> str:
-    batches.sort()
-    for b in batches:
-        if b.can_allocate(order):
-            b.allocate(order)
-            return b.ref_id
-    raise OutOfStock(f"Out of stock for sku {order.sku} and quantity {order.qty}")
+class Product:
+    def __init__(self, sku: str, batches: list[Batch], version_number: int = 0):
+        self.sku = sku
+        # batches must be a reference so orm/sqlalchemy can track and persist
+        self.batches = batches
+        self.version_number = version_number
 
-def deallocate(order: OrderLine, batches: list[Batch]) -> None:
-    for b in batches:
-        if order in b.allocations:
-            b.allocations.discard(order)
-            break
+    def allocate(self, order: OrderLine) -> str:
+        self.batches.sort()
+        for b in self.batches:
+            if b.can_allocate(order):
+                b.allocate(order)
+                self.version_number += 1
+                return b.ref_id
+        raise OutOfStock(f"Out of stock for sku {order.sku} and quantity {order.qty}")
+
+    def deallocate(self, order: OrderLine) -> None:
+        for b in self.batches:
+            if order in b.allocations:
+                b.allocations.discard(order)
+                break

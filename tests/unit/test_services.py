@@ -1,6 +1,6 @@
 import pytest
 from adapters.uow import AbstractUnitOfWork
-from domain.model import Batch, OrderLine
+from domain.model import Product, Batch, OrderLine
 from adapters.repository import AbstractRepository
 from service_layer.services import InvalidSku, allocate, deallocate
 
@@ -13,21 +13,21 @@ class FakeSession:
         self.committed = True
 
 class FakeRepository(AbstractRepository):
-    def __init__(self):
-        self.batches = []
+    def __init__(self, products):
+        self._products = set(products)
     
-    def add(self, batch: Batch):
-        self.batches.append(batch)
+    def add(self, product: Product):
+        self._products.add(product)
     
-    def get(self, ref_id: str) -> Batch | None:
-        return next((b for b in self.batches if b.ref_id == ref_id), None)
+    def get(self, sku: str) -> Product | None:
+        return next((b for b in self._products if b.sku == sku), None)
 
     def list(self):
-        return self.batches
+        return self._products
 
 class FakeUnitOfWork(AbstractUnitOfWork):
     def __init__(self):
-        self.batches = FakeRepository()
+        self.products = FakeRepository([])
         self.committed = False
     
     def commit(self):
@@ -39,8 +39,8 @@ class FakeUnitOfWork(AbstractUnitOfWork):
 def test_returns_allocation():
 
     with FakeUnitOfWork() as uow:
-        uow.batches.add(Batch("ref01", "BED", 100))
-        uow.batches.add(Batch("ref02", "DESK", 10))
+        uow.products.add(Product("BED", [Batch("ref01", "BED", 100)]))
+        uow.products.add(Product("DESK", [Batch("ref02", "DESK", 10)]))
 
         line = OrderLine("order01", "BED", 1)
 
@@ -53,8 +53,8 @@ def test_error_for_invalid_sku():
 
 
     with FakeUnitOfWork() as uow:
-        uow.batches.add(Batch("ref01", "BED", 100))
-        uow.batches.add(Batch("ref02", "DESK", 10))
+        uow.products.add(Product("BED", [Batch("ref01", "BED", 100)]))
+        uow.products.add(Product("BED", [Batch("ref02", "DESK", 10)]))
 
         line = OrderLine("order01", "Cabinet", 1)
 
@@ -65,8 +65,8 @@ def test_commits():
     line = OrderLine("order01", "DESK", 1)
 
     with FakeUnitOfWork() as uow:
-        uow.batches.add(Batch("ref01", "BED", 100))
-        uow.batches.add(Batch("ref02", "DESK", 10))
+        uow.products.add(Product("BED", [Batch("ref01", "BED", 100)]))
+        uow.products.add(Product("DESK", [Batch("ref02", "DESK", 10)]))
 
         allocate(line.order_id, line.sku, line.qty, uow)
 
@@ -85,18 +85,19 @@ def test_deallocate():
     line = OrderLine("order01", "DESK", 1)
 
     with FakeUnitOfWork() as uow:
-        uow.batches.add(Batch("ref01", "BED", 100))
-        uow.batches.add(Batch("ref02", "DESK", 10))
-
+        uow.products.add(Product("BED", [Batch("ref01", "BED", 100)]))
+        uow.products.add(Product("DESK", [Batch("ref02", "DESK", 10)]))
         ref_id = allocate(line.order_id, line.sku, line.qty, uow)
 
-        batch = uow.batches.get("ref02")
+        product = uow.products.get("DESK")
+        assert product is not None
+        batch = next(b for b in product.batches if b.ref_id == "ref02")
         assert(batch is not None)
         assert(batch.available_quantity == 10-1)
 
         deallocate(line.order_id, line.sku, line.qty, uow)
 
-        batch = uow.batches.get("ref02")
-        assert(batch is not None)
+        # No need to load batch again? deallocate manipulates batch in memory?
+        # I guess that's the whole point of using ddd to abstract away infra like db
         assert(batch.available_quantity == 10)
     
