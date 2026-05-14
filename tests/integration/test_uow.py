@@ -1,6 +1,6 @@
 import threading
 import time
-from adapters.uow import SqlAlchemyUnitOfWork
+from service_layer.uow import SqlAlchemyUnitOfWork
 from domain import model
 import pytest
 from sqlalchemy.orm.exc import StaleDataError

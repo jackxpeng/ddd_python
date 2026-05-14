@@ -1,5 +1,5 @@
 import pytest
-from adapters.uow import AbstractUnitOfWork
+from service_layer.uow import AbstractUnitOfWork
 from domain.model import Product, Batch, OrderLine
 from adapters.repository import AbstractRepository
 from service_layer.services import InvalidSku, allocate, deallocate

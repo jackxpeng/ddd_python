@@ -1,6 +1,6 @@
 from domain import model
 from adapters.repository import AbstractRepository
-from adapters.uow import AbstractUnitOfWork
+from service_layer.uow import AbstractUnitOfWork
 
 class InvalidSku(Exception):
     pass

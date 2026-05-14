@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from adapters import orm
-from adapters.uow import SqlAlchemyUnitOfWork
+from service_layer.uow import SqlAlchemyUnitOfWork
 from domain import model
 from service_layer import services
 import config
