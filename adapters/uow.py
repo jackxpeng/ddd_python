@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from adapters import repository
 from adapters.repository import SqlAlchemyRepository
-from adapters import messagebus
+from service_layer import messagebus
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 import config
