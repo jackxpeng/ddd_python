@@ -28,7 +28,8 @@ COPY --from=builder /code /code
 
 # 5. Set paths and environment variables
 ENV PATH="/code/.venv/bin:$PATH"
-ENV FLASK_APP=flask_app.py \
+ENV PYTHONPATH="/code/src"
+ENV FLASK_APP=allocation.entrypoints.flask_app \
     FLASK_DEBUG=1 \
     PYTHONUNBUFFERED=1
 

@@ -1,6 +1,6 @@
 from sqlalchemy import text
 
-from domain.model import OrderLine, Batch
+from allocation.domain.model import OrderLine, Batch
 
 
 def test_can_load_orderlines(session):

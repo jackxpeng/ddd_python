@@ -23,3 +23,6 @@ dependencies = [
     "sqlalchemy==1.4.54",
     "werkzeug==3.1.8",
 ]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "."]

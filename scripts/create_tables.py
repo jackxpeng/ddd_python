@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
-from adapters.orm import metadata_obj, start_mappers
-import config # Add this
+from allocation.adapters.orm import metadata_obj, start_mappers
+import allocation.config as config # Add this
 
 if __name__ == "__main__":
     print("Initializing Database Schema...")

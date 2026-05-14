@@ -4,8 +4,8 @@ import requests
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, clear_mappers, close_all_sessions
 
-from adapters.orm import metadata_obj, start_mappers
-import config
+from allocation.adapters.orm import metadata_obj, start_mappers
+import allocation.config as config
 
 
 @pytest.fixture

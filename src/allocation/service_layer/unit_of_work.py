@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
-from adapters import repository
-from adapters.repository import SqlAlchemyRepository
-from service_layer import messagebus
+from allocation.adapters import repository
+from allocation.adapters.repository import SqlAlchemyRepository
+from allocation.service_layer import messagebus
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
-import config
+import allocation.config as config
 
 get_session = sessionmaker(bind=create_engine(config.get_postgres_uri()))
 

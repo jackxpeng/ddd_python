@@ -13,6 +13,6 @@ services:
     environment:
       - DB_HOST=postgres
       - DB_PORT=5432
-      - FLASK_APP=entrypoints.flask_app
+      - FLASK_APP=allocation.entrypoints.flask_app
     ports:
       - "5005:80"

@@ -1,5 +1,5 @@
 from datetime import date
-from domain.model import Batch, OrderLine
+from allocation.domain.model import Batch, OrderLine
 
 def test_allocate_reduces_available_quantity():
     """Verify that allocating reduces the batch's available_quantity by the correct amount."""

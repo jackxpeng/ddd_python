@@ -1,7 +1,7 @@
 import pytest
 from datetime import date
-from domain.model import Product, OrderLine, Batch, OutOfStock
-from domain import events
+from allocation.domain.model import Product, OrderLine, Batch, OutOfStock
+from allocation.domain import events
 
 
 def test_prefers_warehouse_batches_to_shipments():

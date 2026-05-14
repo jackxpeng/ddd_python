@@ -1,6 +1,6 @@
 from datetime import date
 from dataclasses import dataclass
-from domain import events
+from allocation.domain import events
 
 
 class OutOfStock(Exception):

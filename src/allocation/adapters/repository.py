@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from domain.model import Product
+from allocation.domain.model import Product
 
 class AbstractRepository(ABC):
     def __init__(self):

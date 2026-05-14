@@ -1,8 +1,10 @@
 import pytest
-from service_layer.uow import AbstractUnitOfWork
-from domain.model import Product, Batch, OrderLine
-from adapters.repository import AbstractRepository
-from service_layer.services import InvalidSku, allocate, deallocate
+from unittest import mock
+from allocation.service_layer.unit_of_work import AbstractUnitOfWork
+from allocation.service_layer import services
+from allocation.domain.model import Product, Batch, OrderLine
+from allocation.adapters.repository import AbstractRepository
+from allocation.service_layer.services import InvalidSku, allocate, deallocate
 
 
 class FakeSession:
@@ -99,3 +101,13 @@ def test_deallocate():
         # I guess that's the whole point of using ddd to abstract away infra like db
         assert(batch.available_quantity == 10)
     
+def test_sends_email_on_out_of_stock_error():
+    uow = FakeUnitOfWork()
+    services.add_batch("b1", "POPULAR-CURTAINS", 9, None, uow)
+    
+    with mock.patch("allocation.adapters.email.send_mail") as mock_send_mail:
+        services.allocate("o1", "POPULAR-CURTAINS", 10, uow)
+        mock_send_mail.assert_called_once_with(
+            "stock@made.com",
+            "Out of stock for POPULAR-CURTAINS"
+        )

@@ -1,9 +1,8 @@
 import threading
 import time
-from service_layer.uow import SqlAlchemyUnitOfWork
-from domain import model
+from allocation.service_layer.unit_of_work import SqlAlchemyUnitOfWork
+from allocation.domain import model
 import pytest
-from sqlalchemy.orm.exc import StaleDataError
 from sqlalchemy import text
 
 def insert_batch(session, ref_id, sku, qty, eta):
