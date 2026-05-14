@@ -1,5 +1,6 @@
 from datetime import date
 from dataclasses import dataclass
+from domain import events
 
 
 class OutOfStock(Exception):
@@ -51,16 +52,18 @@ class Product:
         self.sku = sku
         # batches must be a reference so orm/sqlalchemy can track and persist
         self.batches = batches
+        self.events = []
         self.version_number = version_number
 
-    def allocate(self, order: OrderLine) -> str:
+    def allocate(self, order: OrderLine) -> str | None:
         self.batches.sort()
         for b in self.batches:
             if b.can_allocate(order):
                 b.allocate(order)
                 self.version_number += 1
                 return b.ref_id
-        raise OutOfStock(f"Out of stock for sku {order.sku} and quantity {order.qty}")
+        # raise OutOfStock(f"Out of stock for sku {order.sku} and quantity {order.qty}")
+        self.events.append(events.OutOfStock(order.sku))
 
     def deallocate(self, order: OrderLine) -> None:
         for b in self.batches:

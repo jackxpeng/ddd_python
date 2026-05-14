@@ -14,23 +14,21 @@ class FakeSession:
 
 class FakeRepository(AbstractRepository):
     def __init__(self, products):
+        super().__init__()
         self._products = set(products)
     
-    def add(self, product: Product):
+    def _add(self, product: Product):
         self._products.add(product)
     
-    def get(self, sku: str) -> Product | None:
+    def _get(self, sku: str) -> Product | None:
         return next((b for b in self._products if b.sku == sku), None)
-
-    def list(self):
-        return self._products
 
 class FakeUnitOfWork(AbstractUnitOfWork):
     def __init__(self):
         self.products = FakeRepository([])
         self.committed = False
     
-    def commit(self):
+    def _commit(self):
         self.committed = True
     
     def rollback(self):

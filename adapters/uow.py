@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from adapters import repository
 from adapters.repository import SqlAlchemyRepository
+from adapters import messagebus
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 import config
@@ -15,9 +16,18 @@ class AbstractUnitOfWork(ABC):
     
     def __exit__(self, exc_type, exc, tb):
         self.rollback()
+
+    # template method pattern
+    def commit(self):
+        self._commit()
+        
+        for product in self.products.seen:
+            while product.events:
+                event = product.events.pop(0)
+                messagebus.handle(event)
     
     @abstractmethod
-    def commit(self):
+    def _commit(self):
         raise NotImplementedError
 
     @abstractmethod
@@ -38,7 +48,7 @@ class SqlAlchemyUnitOfWork(AbstractUnitOfWork):
         super().__exit__(exc_type, exc, tb)
         self.session.close()
         
-    def commit(self):
+    def _commit(self):
         self.session.commit()
     
     def rollback(self):
