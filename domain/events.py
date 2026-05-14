@@ -1,4 +1,3 @@
-# domain/events.py
 from dataclasses import dataclass
 
 class Event:

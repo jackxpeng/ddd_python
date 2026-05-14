@@ -17,7 +17,7 @@ def test_prefers_warehouse_batches_to_shipments():
     assert batch2.available_quantity == batch2.qty - line.qty
 
 
-def test_records_out_of_stock_exception_if_cannot_allocate():
+def test_records_out_of_stock_event_if_cannot_allocate():
     batch = Batch("batch1", "SMALL-FORK", 10, eta=date.today())
     product = Product(sku="SMALL-FORK", batches=[batch])
     

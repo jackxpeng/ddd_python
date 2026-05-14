@@ -20,7 +20,9 @@ class AbstractUnitOfWork(ABC):
     # template method pattern
     def commit(self):
         self._commit()
+        self.publish_events()
         
+    def publish_events(self):
         for product in self.products.seen:
             while product.events:
                 event = product.events.pop(0)
