@@ -1,0 +1,98 @@
+import pytest
+from unittest import mock
+from allocation.service_layer.unit_of_work import AbstractUnitOfWork
+from allocation.service_layer import handlers
+from allocation.domain.model import Product, Batch
+from allocation.adapters.repository import AbstractRepository
+from allocation.service_layer.handlers import InvalidSku, allocate
+from allocation.domain import events
+from allocation.service_layer import messagebus
+
+
+class FakeSession:
+    def __init__(self):
+        self.committed = False
+
+    def commit(self):
+        self.committed = True
+
+
+class FakeRepository(AbstractRepository):
+    def __init__(self, products):
+        super().__init__()
+        self._products = set(products)
+
+    def _add(self, product: Product):
+        self._products.add(product)
+
+    def _get(self, sku: str) -> Product | None:
+        return next((b for b in self._products if b.sku == sku), None)
+
+    def _get_by_batchref(self, batchref: str) -> Product | None:
+        for product in self._products:
+            for batch in product.batches:
+                if batch.ref_id == batchref:
+                    return product
+        return None
+
+
+class FakeUnitOfWork(AbstractUnitOfWork):
+    def __init__(self):
+        self.products = FakeRepository([])
+        self.committed = False
+
+    def _commit(self):
+        self.committed = True
+
+    def rollback(self):
+        pass
+
+
+def test_returns_allocation():
+
+    uow = FakeUnitOfWork()
+    uow.products.add(Product("BED", [Batch("ref01", "BED", 100)]))
+    uow.products.add(Product("DESK", [Batch("ref02", "DESK", 10)]))
+
+    event = events.AllocationRequired("order01", "BED", 1)
+
+    ref = handlers.allocate(event, uow)
+
+    assert ref == "ref01"
+
+
+def test_error_for_invalid_sku():
+
+    uow = FakeUnitOfWork()
+
+    uow.products.add(Product("BED", [Batch("ref01", "BED", 100)]))
+    uow.products.add(Product("BED", [Batch("ref02", "DESK", 10)]))
+
+    event = events.AllocationRequired("order01", "CABINET", 1)
+
+    with pytest.raises(InvalidSku):
+        allocate(event, uow)
+
+
+def test_commits():
+
+    uow = FakeUnitOfWork()
+    uow.products.add(Product("BED", [Batch("ref01", "BED", 100)]))
+    uow.products.add(Product("DESK", [Batch("ref02", "DESK", 10)]))
+
+    event = events.AllocationRequired("order01", "DESK", 1)
+    allocate(event, uow)
+
+    assert uow.committed
+
+
+def test_sends_email_on_out_of_stock_error():
+    uow = FakeUnitOfWork()
+    handlers.add_batch(events.BatchCreated("b1", "POPULAR-CURTAINS", 9), uow)
+
+    with mock.patch("allocation.adapters.email.send") as mock_email_send:
+        event = events.AllocationRequired("o1", "POPULAR-CURTAINS", 10)
+        messagebus.handle(event, uow)
+        mock_email_send.assert_called_once_with(
+            "stock@made.com", "Out of stock for POPULAR-CURTAINS"
+        )

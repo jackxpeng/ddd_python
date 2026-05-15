@@ -39,6 +39,10 @@ class Batch:
             return False
         return self.available_quantity >= order.qty
 
+    def deallocate_one(self) -> OrderLine:
+        # ?? handle the case of popping from empty set ??
+        return self.allocations.pop()
+
     def __gt__(self, other):
         if self.eta is None:
             return False
@@ -70,3 +74,15 @@ class Product:
             if order in b.allocations:
                 b.allocations.discard(order)
                 break
+
+    def change_batch_quantity(self, batch_ref_id: str, qty: int):
+        # when a precondition is violated, the domain should scream in its own language
+        # raise BatchNotFound(f"No batch with ref {ref_id} in product {self.sku}")
+        batch = next(b for b in self.batches if b.ref_id == batch_ref_id)
+        batch.qty = qty
+
+        while batch.available_quantity < 0:
+            line = batch.deallocate_one()
+            self.events.append(
+                events.AllocationRequired(line.order_id, line.sku, line.qty)
+            )
