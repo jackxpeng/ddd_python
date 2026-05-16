@@ -1,6 +1,6 @@
 from datetime import date
 from dataclasses import dataclass
-from allocation.domain import events
+from allocation.domain import events, commands
 
 
 class OutOfStock(Exception):
@@ -40,7 +40,6 @@ class Batch:
         return self.available_quantity >= order.qty
 
     def deallocate_one(self) -> OrderLine:
-        # ?? handle the case of popping from empty set ??
         return self.allocations.pop()
 
     def __gt__(self, other):
@@ -84,5 +83,5 @@ class Product:
         while batch.available_quantity < 0:
             line = batch.deallocate_one()
             self.events.append(
-                events.AllocationRequired(line.order_id, line.sku, line.qty)
+                commands.Allocate(line.order_id, line.sku, line.qty)
             )

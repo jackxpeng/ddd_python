@@ -5,7 +5,7 @@ from allocation.service_layer import handlers
 from allocation.domain.model import Product, Batch
 from allocation.adapters.repository import AbstractRepository
 from allocation.service_layer.handlers import InvalidSku, allocate
-from allocation.domain import events
+from allocation.domain import events, commands
 from allocation.service_layer import messagebus
 
 
@@ -54,9 +54,9 @@ def test_returns_allocation():
     uow.products.add(Product("BED", [Batch("ref01", "BED", 100)]))
     uow.products.add(Product("DESK", [Batch("ref02", "DESK", 10)]))
 
-    event = events.AllocationRequired("order01", "BED", 1)
+    command = commands.Allocate("order01", "BED", 1)
 
-    ref = handlers.allocate(event, uow)
+    ref = handlers.allocate(command, uow)
 
     assert ref == "ref01"
 
@@ -68,10 +68,10 @@ def test_error_for_invalid_sku():
     uow.products.add(Product("BED", [Batch("ref01", "BED", 100)]))
     uow.products.add(Product("BED", [Batch("ref02", "DESK", 10)]))
 
-    event = events.AllocationRequired("order01", "CABINET", 1)
+    command = commands.Allocate("order01", "CABINET", 1)
 
     with pytest.raises(InvalidSku):
-        allocate(event, uow)
+        allocate(command, uow)
 
 
 def test_commits():
@@ -80,19 +80,19 @@ def test_commits():
     uow.products.add(Product("BED", [Batch("ref01", "BED", 100)]))
     uow.products.add(Product("DESK", [Batch("ref02", "DESK", 10)]))
 
-    event = events.AllocationRequired("order01", "DESK", 1)
-    allocate(event, uow)
+    command = commands.Allocate("order01", "DESK", 1)
+    allocate(command, uow)
 
     assert uow.committed
 
 
 def test_sends_email_on_out_of_stock_error():
     uow = FakeUnitOfWork()
-    handlers.add_batch(events.BatchCreated("b1", "POPULAR-CURTAINS", 9), uow)
+    handlers.add_batch(commands.CreateBatch("b1", "POPULAR-CURTAINS", 9), uow)
 
     with mock.patch("allocation.adapters.email.send") as mock_email_send:
-        event = events.AllocationRequired("o1", "POPULAR-CURTAINS", 10)
-        messagebus.handle(event, uow)
+        command = commands.Allocate("o1", "POPULAR-CURTAINS", 10)
+        messagebus.handle(command, uow)
         mock_email_send.assert_called_once_with(
             "stock@made.com", "Out of stock for POPULAR-CURTAINS"
         )

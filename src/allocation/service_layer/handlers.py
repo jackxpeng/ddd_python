@@ -1,4 +1,4 @@
-from allocation.domain import model, events
+from allocation.domain import model, events, commands
 from allocation.service_layer import unit_of_work
 from allocation.adapters import email
 
@@ -11,7 +11,7 @@ class InvalidBatchReference(Exception):
     pass
 
 
-def add_batch(event: events.BatchCreated, uow: unit_of_work.AbstractUnitOfWork):
+def add_batch(event: commands.CreateBatch, uow: unit_of_work.AbstractUnitOfWork):
     with uow:
         product = uow.products.get(sku=event.sku)
         if product is None:
@@ -23,7 +23,7 @@ def add_batch(event: events.BatchCreated, uow: unit_of_work.AbstractUnitOfWork):
 
 # returns ref id of the batched allocated from
 def allocate(
-    event: events.AllocationRequired, uow: unit_of_work.AbstractUnitOfWork
+    event: commands.Allocate, uow: unit_of_work.AbstractUnitOfWork
 ) -> str | None:
     with uow:
         product = uow.products.get(event.sku)
@@ -37,7 +37,7 @@ def allocate(
 
 
 def batch_quantity_change(
-    event: events.BatchQuantityChanged, uow: unit_of_work.AbstractUnitOfWork
+    event: commands.ChangeBatchQuantity, uow: unit_of_work.AbstractUnitOfWork
 ):
     with uow:
         # load product (root) using batch id in event

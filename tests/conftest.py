@@ -54,6 +54,7 @@ def postgres_db():
 
     engine.dispose()
 
+
 @pytest.fixture
 def postgres_session_factory(postgres_db):
     start_mappers()
@@ -61,6 +62,7 @@ def postgres_session_factory(postgres_db):
     factory = sessionmaker(bind=postgres_db)
     yield factory
     clear_mappers()
+
 
 @pytest.fixture
 def clear_db_between_tests(postgres_db):
@@ -74,8 +76,9 @@ def clear_db_between_tests(postgres_db):
         conn.execute(text("DELETE FROM orderlines"))
         conn.execute(text("DELETE FROM batches"))
         conn.execute(text("DELETE FROM products"))
-    
-    yield # The test runs here, with a perfectly clean database
+
+    yield  # The test runs here, with a perfectly clean database
+
 
 # 2. the reusable data setup/teardown fixture
 @pytest.fixture
@@ -100,9 +103,6 @@ def add_stock(postgres_db, clear_db_between_tests):
                 )
 
     yield _add_stock
-
-
-
 
 
 @pytest.fixture(scope="session")
