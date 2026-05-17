@@ -1,6 +1,5 @@
-import pytest
 from datetime import date
-from allocation.domain.model import Product, OrderLine, Batch, OutOfStock
+from allocation.domain.model import Product, OrderLine, Batch
 from allocation.domain import events
 
 
@@ -20,22 +19,28 @@ def test_prefers_warehouse_batches_to_shipments():
 def test_records_out_of_stock_event_if_cannot_allocate():
     batch = Batch("batch1", "SMALL-FORK", 10, eta=date.today())
     product = Product(sku="SMALL-FORK", batches=[batch])
-    
+
     # We try to allocate a different SKU to force a failure
     different_sku_line = OrderLine("order2", "HEAVY-SPOON", 10)
-    
+
     allocation = product.allocate(different_sku_line)
-    
+
     # Notice we no longer assert a pytest.raises(OutOfStock)!
     # Instead, we check the product's internal events list.
     assert product.events[-1] == events.OutOfStock(sku="HEAVY-SPOON")
     assert allocation is None
 
+
 def test_increments_version_number():
     line = OrderLine("order-1", "CHAIR", 10)
-    product = Product(
-        sku="CHAIR", batches=[Batch("batch-1", "CHAIR", 100)]
-    )
+    product = Product(sku="CHAIR", batches=[Batch("batch-1", "CHAIR", 100)])
     product.version_number = 7
     product.allocate(line)
-    assert product.version_number == 8    
+    assert product.version_number == 8
+
+
+def test_outputs_allocated_event():
+    line = OrderLine("order-1", "CHAIR", 10)
+    product = Product(sku="CHAIR", batches=[Batch("batch-1", "CHAIR", 100)])
+    product.allocate(line)
+    assert product.events[-1] == events.Allocated("order-1", "CHAIR", 10, "batch-1")

@@ -14,5 +14,29 @@ services:
       - DB_HOST=postgres
       - DB_PORT=5432
       - FLASK_APP=allocation.entrypoints.flask_app
+      - REDIS_HOST=redis
     ports:
       - "5005:80"
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "63791:6379"
+  
+  redis_pubsub:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_PASSWORD=abc123
+      - REDIS_HOST=redis
+    volumes:
+      - ./src:/src
+    entrypoint:
+      - python
+      - /src/allocation/entrypoints/redis_eventconsumer.py

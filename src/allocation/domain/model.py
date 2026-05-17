@@ -64,8 +64,8 @@ class Product:
             if b.can_allocate(order):
                 b.allocate(order)
                 self.version_number += 1
+                self.events.append(events.Allocated(order.order_id, order.sku, order.qty, b.ref_id))
                 return b.ref_id
-        # raise OutOfStock(f"Out of stock for sku {order.sku} and quantity {order.qty}")
         self.events.append(events.OutOfStock(order.sku))
 
     def deallocate(self, order: OrderLine) -> None:
