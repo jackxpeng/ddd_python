@@ -1,6 +1,8 @@
 import time
+import json
 import pytest
 import requests
+import redis
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, clear_mappers, close_all_sessions
 
@@ -80,7 +82,50 @@ def clear_db_between_tests(postgres_db):
     yield  # The test runs here, with a perfectly clean database
 
 
-# 2. the reusable data setup/teardown fixture
+@pytest.fixture(scope="session")
+def redis_client():
+    r = redis.Redis(**config.get_redis_host_and_port())
+    for _ in range(10):
+        try:
+            r.ping()
+            break
+        except redis.ConnectionError:
+            time.sleep(0.5)
+    else:
+        pytest.fail("Failed to connect to redis.")
+
+    yield r
+
+    r.close()
+
+
+@pytest.fixture
+def subscribe_to_redis(redis_client):
+    pubsubs = []
+
+    def _subscribe_to(channel: str):
+        pubsub = redis_client.pubsub()
+        pubsub.subscribe(channel)
+        confirmation = pubsub.get_message(timeout=3)
+        assert confirmation is not None
+        assert confirmation["type"] == "subscribe"
+        pubsubs.append(pubsub)
+        return pubsub
+
+    yield _subscribe_to
+
+    for pubsub in pubsubs:
+        pubsub.close()
+
+
+@pytest.fixture
+def publish_to_redis(redis_client):
+    def _publish(channel: str, message: dict):
+        redis_client.publish(channel, json.dumps(message))
+
+    return _publish
+
+
 @pytest.fixture
 def add_stock(postgres_db, clear_db_between_tests):
     def _add_stock(lines):
