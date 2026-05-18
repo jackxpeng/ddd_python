@@ -41,6 +41,15 @@ allocations = Table(
 )
 
 
+allocations_view = Table(
+    "allocations_view",
+    metadata_obj,
+    Column("order_id", String(255)),
+    Column("sku", String(255)),
+    Column("batch_id", String(255)),
+)
+
+
 mapper_registry = registry()
 
 

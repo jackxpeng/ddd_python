@@ -56,9 +56,7 @@ def test_returns_allocation():
 
     command = commands.Allocate("order01", "BED", 1)
 
-    ref = handlers.allocate(command, uow)
-
-    assert ref == "ref01"
+    handlers.allocate(command, uow)
 
 
 def test_error_for_invalid_sku():

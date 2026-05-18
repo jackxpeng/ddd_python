@@ -82,6 +82,9 @@ class Product:
 
         while batch.available_quantity < 0:
             line = batch.deallocate_one()
+            # as this affects the same aggregate, ie, sku
+            # should this be handled in another uow/transaction?
+            # I think both can work.
             self.events.append(
-                commands.Allocate(line.order_id, line.sku, line.qty)
+                events.Deallocated(line.order_id, line.sku, line.qty)
             )

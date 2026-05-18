@@ -36,11 +36,14 @@ workspace {
                 uow = component "Unit of Work" "Manages atomic transactions and provides access to the repository." "Python"
                 domainModel = component "Domain Model" "Contains core business logic, aggregates, and entities." "Python"
                 repository = component "Repository" "Abstracts data access to the database." "Python"
+                readModelViews = component "Read Model Views" "Executes raw SQL queries for fast reads, bypassing the domain model." "Python"
                 emailAdapter = component "Email Adapter" "Sends external emails." "Python"
                 redisPublisher = component "Redis Publisher" "Publishes events to Redis." "Python"
 
                 # Component relationships
                 api -> messageBus "Dispatches commands to"
+                api -> readModelViews "Queries data from"
+                readModelViews -> uow "Uses for database session"
                 messageBus -> handlers "Routes to"
                 handlers -> uow "Uses for transactions"
                 handlers -> domainModel "Mutates"

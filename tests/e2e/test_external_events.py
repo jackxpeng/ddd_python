@@ -22,8 +22,7 @@ def test_change_batch_quantity_leading_to_reallocation(
     response = requests.post(
         f"{api_url}/allocate", json={"orderid": orderid, "sku": sku, "qty": 10}
     )
-    assert response.status_code == 201
-    assert response.json()["batchref"] == earlier_batch
+    assert response.status_code == 202
 
     # 2. Subscribe to the outbound Redis channel
     subscription = subscribe_to_redis("line_allocated")

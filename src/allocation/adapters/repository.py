@@ -16,9 +16,6 @@ class AbstractRepository(ABC):
     def get(self, sku: str) -> Product | None:
         product = self._get(sku)
         if product:
-            # ?? We even track reads ??
-            # I guess ok because if it has no events, then there's nothing to handle
-            # We track seen from repo methods so we don't have to check all products in the db
             self.seen.add(product)
         return product
 

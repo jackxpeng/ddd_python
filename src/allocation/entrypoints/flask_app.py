@@ -8,6 +8,7 @@ from allocation.service_layer.unit_of_work import SqlAlchemyUnitOfWork
 from allocation.service_layer import handlers, messagebus
 import allocation.config as config
 from allocation.domain import commands
+from allocation import views
 
 orm.start_mappers()
 get_session = sessionmaker(bind=create_engine(config.get_postgres_uri()))
@@ -34,10 +35,16 @@ def allocate_endpoint():
         request.json.get("orderid"), request.json.get("sku"), request.json.get("qty")
     )
     uow = SqlAlchemyUnitOfWork(get_session)
-    results = messagebus.handle(command, uow)
-    batch_ref = results[0]
-    return jsonify({"batchref": batch_ref}), 201
+    messagebus.handle(command, uow)
+    return "OK", 202
 
+@app.route("/allocations/<orderid>", methods=["GET"])
+def allocations_view_endpoint(orderid):
+    uow = SqlAlchemyUnitOfWork(get_session)
+    result = views.allocations(orderid, uow)
+    if not result:
+        return "not found", 404
+    return jsonify(result), 200
 
 @app.errorhandler(handlers.InvalidSku)
 def handle_invalid_sku(e):
