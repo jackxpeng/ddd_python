@@ -1,0 +1,241 @@
+{
+  "configuration" : { },
+  "description" : "Description",
+  "documentation" : { },
+  "id" : 1,
+  "lastModifiedDate" : "2026-05-18T16:23:36Z",
+  "model" : {
+    "people" : [ {
+      "description" : "A customer or system wanting to allocate stock.",
+      "id" : "1",
+      "name" : "User",
+      "properties" : {
+        "structurizr.dsl.identifier" : "user"
+      },
+      "relationships" : [ {
+        "description" : "Makes API calls to",
+        "destinationId" : "3",
+        "id" : "8",
+        "sourceId" : "1",
+        "tags" : "Relationship",
+        "technology" : "JSON/HTTP"
+      }, {
+        "description" : "Makes API calls to",
+        "destinationId" : "2",
+        "id" : "9",
+        "linkedRelationshipId" : "8",
+        "sourceId" : "1",
+        "technology" : "JSON/HTTP"
+      } ],
+      "tags" : "Element,Person"
+    } ],
+    "softwareSystems" : [ {
+      "containers" : [ {
+        "description" : "Provides stock allocation functionality via a JSON/HTTP API.",
+        "documentation" : { },
+        "id" : "3",
+        "name" : "Web API",
+        "properties" : {
+          "structurizr.dsl.identifier" : "webApi"
+        },
+        "relationships" : [ {
+          "description" : "Reads from and writes to",
+          "destinationId" : "4",
+          "id" : "10",
+          "sourceId" : "3",
+          "tags" : "Relationship",
+          "technology" : "SQLAlchemy"
+        }, {
+          "description" : "Publishes events to",
+          "destinationId" : "5",
+          "id" : "11",
+          "sourceId" : "3",
+          "tags" : "Relationship",
+          "technology" : "Redis Pub/Sub"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Python/Flask"
+      }, {
+        "description" : "Stores stock, batches, and allocation data.",
+        "documentation" : { },
+        "id" : "4",
+        "name" : "Database",
+        "properties" : {
+          "structurizr.dsl.identifier" : "database"
+        },
+        "tags" : "Element,Container,Database",
+        "technology" : "PostgreSQL"
+      }, {
+        "description" : "Handles asynchronous event messaging.",
+        "documentation" : { },
+        "id" : "5",
+        "name" : "Message Broker",
+        "properties" : {
+          "structurizr.dsl.identifier" : "messageBroker"
+        },
+        "tags" : "Element,Container",
+        "technology" : "Redis"
+      }, {
+        "description" : "Consumes events from Redis and triggers domain actions.",
+        "documentation" : { },
+        "id" : "6",
+        "name" : "Event Consumer",
+        "properties" : {
+          "structurizr.dsl.identifier" : "eventConsumer"
+        },
+        "relationships" : [ {
+          "description" : "Subscribes to events from",
+          "destinationId" : "5",
+          "id" : "12",
+          "sourceId" : "6",
+          "tags" : "Relationship",
+          "technology" : "Redis Pub/Sub"
+        }, {
+          "description" : "Reads from and writes to",
+          "destinationId" : "4",
+          "id" : "13",
+          "sourceId" : "6",
+          "tags" : "Relationship",
+          "technology" : "SQLAlchemy"
+        } ],
+        "tags" : "Element,Container",
+        "technology" : "Python"
+      } ],
+      "description" : "Allows users to allocate stock against batches of inventory.",
+      "documentation" : { },
+      "id" : "2",
+      "name" : "Allocation System",
+      "properties" : {
+        "structurizr.dsl.identifier" : "allocationSystem"
+      },
+      "relationships" : [ {
+        "description" : "Sends emails using",
+        "destinationId" : "7",
+        "id" : "14",
+        "sourceId" : "2",
+        "tags" : "Relationship",
+        "technology" : "SMTP"
+      } ],
+      "tags" : "Element,Software System"
+    }, {
+      "description" : "External email system for sending notifications.",
+      "documentation" : { },
+      "id" : "7",
+      "name" : "Email System",
+      "properties" : {
+        "structurizr.dsl.identifier" : "emailSystem"
+      },
+      "tags" : "Element,Software System,Existing System"
+    } ]
+  },
+  "name" : "Name",
+  "properties" : {
+    "structurizr.inspection.error" : "3",
+    "structurizr.dsl" : "d29ya3NwYWNlIHsKCiAgICBtb2RlbCB7CiAgICAgICAgdXNlciA9IHBlcnNvbiAiVXNlciIgIkEgY3VzdG9tZXIgb3Igc3lzdGVtIHdhbnRpbmcgdG8gYWxsb2NhdGUgc3RvY2suIgogICAgICAgIAogICAgICAgIGFsbG9jYXRpb25TeXN0ZW0gPSBzb2Z0d2FyZVN5c3RlbSAiQWxsb2NhdGlvbiBTeXN0ZW0iICJBbGxvd3MgdXNlcnMgdG8gYWxsb2NhdGUgc3RvY2sgYWdhaW5zdCBiYXRjaGVzIG9mIGludmVudG9yeS4iIHsKICAgICAgICAgICAgd2ViQXBpID0gY29udGFpbmVyICJXZWIgQVBJIiAiUHJvdmlkZXMgc3RvY2sgYWxsb2NhdGlvbiBmdW5jdGlvbmFsaXR5IHZpYSBhIEpTT04vSFRUUCBBUEkuIiAiUHl0aG9uL0ZsYXNrIgogICAgICAgICAgICBkYXRhYmFzZSA9IGNvbnRhaW5lciAiRGF0YWJhc2UiICJTdG9yZXMgc3RvY2ssIGJhdGNoZXMsIGFuZCBhbGxvY2F0aW9uIGRhdGEuIiAiUG9zdGdyZVNRTCIgIkRhdGFiYXNlIgogICAgICAgICAgICBtZXNzYWdlQnJva2VyID0gY29udGFpbmVyICJNZXNzYWdlIEJyb2tlciIgIkhhbmRsZXMgYXN5bmNocm9ub3VzIGV2ZW50IG1lc3NhZ2luZy4iICJSZWRpcyIKICAgICAgICAgICAgZXZlbnRDb25zdW1lciA9IGNvbnRhaW5lciAiRXZlbnQgQ29uc3VtZXIiICJDb25zdW1lcyBldmVudHMgZnJvbSBSZWRpcyBhbmQgdHJpZ2dlcnMgZG9tYWluIGFjdGlvbnMuIiAiUHl0aG9uIgogICAgICAgIH0KICAgICAgICAKICAgICAgICBlbWFpbFN5c3RlbSA9IHNvZnR3YXJlU3lzdGVtICJFbWFpbCBTeXN0ZW0iICJFeHRlcm5hbCBlbWFpbCBzeXN0ZW0gZm9yIHNlbmRpbmcgbm90aWZpY2F0aW9ucy4iICJFeGlzdGluZyBTeXN0ZW0iCgogICAgICAgICMgUmVsYXRpb25zaGlwcwogICAgICAgIHVzZXIgLT4gd2ViQXBpICJNYWtlcyBBUEkgY2FsbHMgdG8iICJKU09OL0hUVFAiCiAgICAgICAgd2ViQXBpIC0+IGRhdGFiYXNlICJSZWFkcyBmcm9tIGFuZCB3cml0ZXMgdG8iICJTUUxBbGNoZW15IgogICAgICAgIHdlYkFwaSAtPiBtZXNzYWdlQnJva2VyICJQdWJsaXNoZXMgZXZlbnRzIHRvIiAiUmVkaXMgUHViL1N1YiIKICAgICAgICBldmVudENvbnN1bWVyIC0+IG1lc3NhZ2VCcm9rZXIgIlN1YnNjcmliZXMgdG8gZXZlbnRzIGZyb20iICJSZWRpcyBQdWIvU3ViIgogICAgICAgIGV2ZW50Q29uc3VtZXIgLT4gZGF0YWJhc2UgIlJlYWRzIGZyb20gYW5kIHdyaXRlcyB0byIgIlNRTEFsY2hlbXkiCiAgICAgICAgCiAgICAgICAgYWxsb2NhdGlvblN5c3RlbSAtPiBlbWFpbFN5c3RlbSAiU2VuZHMgZW1haWxzIHVzaW5nIiAiU01UUCIKICAgIH0KCiAgICB2aWV3cyB7CiAgICAgICAgc3lzdGVtQ29udGV4dCBhbGxvY2F0aW9uU3lzdGVtICJTeXN0ZW1Db250ZXh0IiB7CiAgICAgICAgICAgIGluY2x1ZGUgKgogICAgICAgICAgICBhdXRvTGF5b3V0CiAgICAgICAgfQoKICAgICAgICBjb250YWluZXIgYWxsb2NhdGlvblN5c3RlbSAiQ29udGFpbmVycyIgewogICAgICAgICAgICBpbmNsdWRlICoKICAgICAgICAgICAgYXV0b0xheW91dAogICAgICAgIH0KCiAgICAgICAgc3R5bGVzIHsKICAgICAgICAgICAgZWxlbWVudCAiU29mdHdhcmUgU3lzdGVtIiB7CiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICMxMTY4YmQKICAgICAgICAgICAgICAgIGNvbG9yICNmZmZmZmYKICAgICAgICAgICAgfQogICAgICAgICAgICBlbGVtZW50ICJQZXJzb24iIHsKICAgICAgICAgICAgICAgIHNoYXBlIHBlcnNvbgogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAjMDg0MjdiCiAgICAgICAgICAgICAgICBjb2xvciAjZmZmZmZmCiAgICAgICAgICAgIH0KICAgICAgICAgICAgZWxlbWVudCAiQ29udGFpbmVyIiB7CiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICM0MzhkZDUKICAgICAgICAgICAgICAgIGNvbG9yICNmZmZmZmYKICAgICAgICAgICAgfQogICAgICAgICAgICBlbGVtZW50ICJEYXRhYmFzZSIgewogICAgICAgICAgICAgICAgc2hhcGUgY3lsaW5kZXIKICAgICAgICAgICAgfQogICAgICAgIH0KICAgIH0KCn0=",
+    "structurizr.inspection.info" : "0",
+    "structurizr.inspection.ignore" : "0",
+    "structurizr.inspection.warning" : "0"
+  },
+  "views" : {
+    "configuration" : {
+      "styles" : {
+        "elements" : [ {
+          "background" : "#438dd5",
+          "color" : "#ffffff",
+          "tag" : "Container"
+        }, {
+          "shape" : "Cylinder",
+          "tag" : "Database"
+        }, {
+          "background" : "#08427b",
+          "color" : "#ffffff",
+          "shape" : "Person",
+          "tag" : "Person"
+        }, {
+          "background" : "#1168bd",
+          "color" : "#ffffff",
+          "tag" : "Software System"
+        } ]
+      },
+      "terminology" : { }
+    },
+    "containerViews" : [ {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "3",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "4",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "6",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalSoftwareSystemBoundariesVisible" : false,
+      "key" : "Containers",
+      "name" : "Container View: Allocation System",
+      "order" : 2,
+      "relationships" : [ {
+        "id" : "10"
+      }, {
+        "id" : "11"
+      }, {
+        "id" : "12"
+      }, {
+        "id" : "13"
+      }, {
+        "id" : "8"
+      } ],
+      "softwareSystemId" : "2"
+    } ],
+    "systemContextViews" : [ {
+      "automaticLayout" : {
+        "edgeSeparation" : 50,
+        "nodeSeparation" : 50,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 100,
+        "vertices" : true
+      },
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "2",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "7",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "enterpriseBoundaryVisible" : true,
+      "key" : "SystemContext",
+      "name" : "System Context View: Allocation System",
+      "order" : 1,
+      "relationships" : [ {
+        "id" : "14"
+      }, {
+        "id" : "9"
+      } ],
+      "softwareSystemId" : "2"
+    } ]
+  }
+}
