@@ -1,12 +1,11 @@
-from allocation.service_layer import unit_of_work
+from sqlalchemy.orm import Session
 
-def allocations(orderid: str, uow: unit_of_work.SqlAlchemyUnitOfWork):
-    with uow:
-        results = uow.session.execute(
-            """
-            SELECT sku, batchref FROM allocations_view WHERE orderid = :orderid
-            """,
-            dict(orderid=orderid),
-        )
+def allocations(order_id: str, session: Session):
+    results = session.execute(
+        """
+        SELECT sku, batch_ref AS batchref FROM allocations_view WHERE order_id = :order_id
+        """,
+        dict(order_id=order_id),
+    )
     # Using ._mapping ensures compatibility with newer SQLAlchemy versions
     return [dict(r._mapping) for r in results] 

@@ -1,9 +1,11 @@
 {
-  "configuration" : { },
-  "description" : "Description",
+  "configuration" : {
+    "scope" : "SoftwareSystem"
+  },
+  "description" : "Architecture of the Allocation System",
   "documentation" : { },
   "id" : 1,
-  "lastModifiedDate" : "2026-05-18T20:19:27Z",
+  "lastModifiedDate" : "2026-05-19T16:50:43Z",
   "model" : {
     "people" : [ {
       "description" : "A customer or system wanting to allocate stock.",
@@ -14,23 +16,23 @@
       },
       "relationships" : [ {
         "description" : "Makes API calls to",
-        "destinationId" : "24",
-        "id" : "52",
+        "destinationId" : "37",
+        "id" : "67",
         "sourceId" : "1",
         "tags" : "Relationship",
         "technology" : "JSON/HTTP"
       }, {
         "description" : "Makes API calls to",
-        "destinationId" : "23",
-        "id" : "53",
-        "linkedRelationshipId" : "52",
+        "destinationId" : "36",
+        "id" : "68",
+        "linkedRelationshipId" : "67",
         "sourceId" : "1",
         "technology" : "JSON/HTTP"
       }, {
         "description" : "Makes API calls to",
         "destinationId" : "4",
-        "id" : "54",
-        "linkedRelationshipId" : "52",
+        "id" : "69",
+        "linkedRelationshipId" : "67",
         "sourceId" : "1",
         "technology" : "JSON/HTTP"
       } ],
@@ -56,15 +58,15 @@
       "relationships" : [ {
         "description" : "Publishes inventory change commands to",
         "destinationId" : "6",
-        "id" : "57",
+        "id" : "71",
         "sourceId" : "3",
         "tags" : "Relationship",
         "technology" : "Redis Pub/Sub"
       }, {
         "description" : "Publishes inventory change commands to",
         "destinationId" : "4",
-        "id" : "58",
-        "linkedRelationshipId" : "57",
+        "id" : "72",
+        "linkedRelationshipId" : "71",
         "sourceId" : "3",
         "technology" : "Redis Pub/Sub"
       } ],
@@ -100,15 +102,23 @@
             "structurizr.dsl.identifier" : "redisSubscriber"
           },
           "relationships" : [ {
-            "description" : "Dispatches commands to",
+            "description" : "Initializes",
             "destinationId" : "9",
-            "id" : "14",
+            "id" : "17",
             "sourceId" : "8",
-            "tags" : "Relationship"
+            "tags" : "Relationship",
+            "technology" : "Method Call"
+          }, {
+            "description" : "Dispatches commands to",
+            "destinationId" : "10",
+            "id" : "19",
+            "sourceId" : "8",
+            "tags" : "Relationship",
+            "technology" : "Method Call"
           }, {
             "description" : "Subscribes to events/commands from",
             "destinationId" : "6",
-            "id" : "55",
+            "id" : "70",
             "sourceId" : "8",
             "tags" : "Relationship",
             "technology" : "Redis Pub/Sub"
@@ -116,64 +126,107 @@
           "tags" : "Element,Component",
           "technology" : "Python"
         }, {
-          "description" : "Routes commands to their respective handlers.",
+          "description" : "Wires up dependency injection and initializes the Message Bus.",
           "documentation" : { },
           "id" : "9",
+          "name" : "Bootstrap",
+          "properties" : {
+            "structurizr.dsl.identifier" : "bootstrapConsumer"
+          },
+          "relationships" : [ {
+            "description" : "Injects handlers into",
+            "destinationId" : "10",
+            "id" : "18",
+            "sourceId" : "9",
+            "tags" : "Relationship",
+            "technology" : "Method Call"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "Python"
+        }, {
+          "description" : "Routes commands to their respective handlers.",
+          "documentation" : { },
+          "id" : "10",
           "name" : "Message Bus",
           "properties" : {
             "structurizr.dsl.identifier" : "messageBusConsumer"
           },
           "relationships" : [ {
             "description" : "Routes to",
-            "destinationId" : "10",
-            "id" : "15",
-            "sourceId" : "9",
-            "tags" : "Relationship"
+            "destinationId" : "11",
+            "id" : "20",
+            "sourceId" : "10",
+            "tags" : "Relationship",
+            "technology" : "Method Call"
+          }, {
+            "description" : "Collects new events from domain",
+            "destinationId" : "12",
+            "id" : "23",
+            "sourceId" : "10",
+            "tags" : "Relationship",
+            "technology" : "Method Call"
           } ],
           "tags" : "Element,Component",
           "technology" : "Python"
         }, {
           "description" : "Orchestrates use cases and manages the domain model.",
           "documentation" : { },
-          "id" : "10",
+          "id" : "11",
           "name" : "Service Handlers",
           "properties" : {
             "structurizr.dsl.identifier" : "handlersConsumer"
           },
           "relationships" : [ {
             "description" : "Uses for transactions",
-            "destinationId" : "11",
-            "id" : "16",
-            "sourceId" : "10",
-            "tags" : "Relationship"
+            "destinationId" : "12",
+            "id" : "21",
+            "sourceId" : "11",
+            "tags" : "Relationship",
+            "technology" : "Method Call"
           }, {
             "description" : "Mutates",
-            "destinationId" : "12",
-            "id" : "17",
-            "sourceId" : "10",
-            "tags" : "Relationship"
+            "destinationId" : "13",
+            "id" : "22",
+            "sourceId" : "11",
+            "tags" : "Relationship",
+            "technology" : "Method Call"
+          }, {
+            "description" : "Dispatches external events to",
+            "destinationId" : "15",
+            "id" : "26",
+            "sourceId" : "11",
+            "tags" : "Relationship",
+            "technology" : "Method Call"
+          }, {
+            "description" : "Dispatches external events to",
+            "destinationId" : "16",
+            "id" : "27",
+            "sourceId" : "11",
+            "tags" : "Relationship",
+            "technology" : "Method Call"
           } ],
           "tags" : "Element,Component",
           "technology" : "Python"
         }, {
           "description" : "Manages atomic transactions.",
           "documentation" : { },
-          "id" : "11",
+          "id" : "12",
           "name" : "Unit of Work",
           "properties" : {
             "structurizr.dsl.identifier" : "uowConsumer"
           },
           "relationships" : [ {
             "description" : "Provides access to",
-            "destinationId" : "13",
-            "id" : "18",
-            "sourceId" : "11",
-            "tags" : "Relationship"
+            "destinationId" : "14",
+            "id" : "24",
+            "sourceId" : "12",
+            "tags" : "Relationship",
+            "technology" : "Method Call"
           }, {
             "description" : "Commits transactions to",
             "destinationId" : "5",
-            "id" : "22",
-            "sourceId" : "11",
+            "id" : "30",
+            "sourceId" : "12",
             "tags" : "Relationship",
             "technology" : "SQLAlchemy"
           } ],
@@ -182,7 +235,7 @@
         }, {
           "description" : "Contains core business logic.",
           "documentation" : { },
-          "id" : "12",
+          "id" : "13",
           "name" : "Domain Model",
           "properties" : {
             "structurizr.dsl.identifier" : "domainModelConsumer"
@@ -192,24 +245,61 @@
         }, {
           "description" : "Abstracts data access.",
           "documentation" : { },
-          "id" : "13",
+          "id" : "14",
           "name" : "Repository",
           "properties" : {
             "structurizr.dsl.identifier" : "repositoryConsumer"
           },
           "relationships" : [ {
             "description" : "Loads and saves",
-            "destinationId" : "12",
-            "id" : "19",
-            "sourceId" : "13",
-            "tags" : "Relationship"
+            "destinationId" : "13",
+            "id" : "25",
+            "sourceId" : "14",
+            "tags" : "Relationship",
+            "technology" : "Method Call"
           }, {
             "description" : "Reads from and writes to",
             "destinationId" : "5",
-            "id" : "20",
-            "sourceId" : "13",
+            "id" : "28",
+            "sourceId" : "14",
             "tags" : "Relationship",
             "technology" : "SQLAlchemy"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "Python"
+        }, {
+          "description" : "Sends external emails.",
+          "documentation" : { },
+          "id" : "15",
+          "name" : "Email Adapter",
+          "properties" : {
+            "structurizr.dsl.identifier" : "emailAdapterConsumer"
+          },
+          "relationships" : [ {
+            "description" : "Sends emails using",
+            "destinationId" : "2",
+            "id" : "31",
+            "sourceId" : "15",
+            "tags" : "Relationship",
+            "technology" : "SMTP"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "Python"
+        }, {
+          "description" : "Publishes events to Redis.",
+          "documentation" : { },
+          "id" : "16",
+          "name" : "Redis Publisher",
+          "properties" : {
+            "structurizr.dsl.identifier" : "redisPublisherConsumer"
+          },
+          "relationships" : [ {
+            "description" : "Publishes events to",
+            "destinationId" : "6",
+            "id" : "34",
+            "sourceId" : "16",
+            "tags" : "Relationship",
+            "technology" : "Redis Pub/Sub"
           } ],
           "tags" : "Element,Component",
           "technology" : "Python"
@@ -224,15 +314,22 @@
         "relationships" : [ {
           "description" : "Reads from and writes to",
           "destinationId" : "5",
-          "id" : "21",
-          "linkedRelationshipId" : "20",
+          "id" : "29",
+          "linkedRelationshipId" : "28",
           "sourceId" : "7",
           "technology" : "SQLAlchemy"
         }, {
-          "description" : "Subscribes to events/commands from",
+          "description" : "Sends emails using",
+          "destinationId" : "2",
+          "id" : "32",
+          "linkedRelationshipId" : "31",
+          "sourceId" : "7",
+          "technology" : "SMTP"
+        }, {
+          "description" : "Publishes events to",
           "destinationId" : "6",
-          "id" : "56",
-          "linkedRelationshipId" : "55",
+          "id" : "35",
+          "linkedRelationshipId" : "34",
           "sourceId" : "7",
           "technology" : "Redis Pub/Sub"
         } ],
@@ -242,103 +339,119 @@
         "components" : [ {
           "description" : "Flask application providing the HTTP interface.",
           "documentation" : { },
-          "id" : "24",
+          "id" : "37",
           "name" : "API Entrypoint",
           "properties" : {
             "structurizr.dsl.identifier" : "api"
           },
           "relationships" : [ {
+            "description" : "Initializes",
+            "destinationId" : "44",
+            "id" : "47",
+            "sourceId" : "37",
+            "tags" : "Relationship",
+            "technology" : "Method Call"
+          }, {
             "description" : "Dispatches commands to",
-            "destinationId" : "25",
-            "id" : "33",
-            "sourceId" : "24",
-            "tags" : "Relationship"
+            "destinationId" : "38",
+            "id" : "49",
+            "sourceId" : "37",
+            "tags" : "Relationship",
+            "technology" : "Method Call"
           }, {
             "description" : "Queries data from",
-            "destinationId" : "30",
-            "id" : "34",
-            "sourceId" : "24",
-            "tags" : "Relationship"
+            "destinationId" : "43",
+            "id" : "50",
+            "sourceId" : "37",
+            "tags" : "Relationship",
+            "technology" : "Method Call"
           } ],
           "tags" : "Element,Component",
           "technology" : "Python/Flask"
         }, {
           "description" : "Routes commands and events to their respective handlers.",
           "documentation" : { },
-          "id" : "25",
+          "id" : "38",
           "name" : "Message Bus",
           "properties" : {
             "structurizr.dsl.identifier" : "messageBus"
           },
           "relationships" : [ {
             "description" : "Routes to",
-            "destinationId" : "26",
-            "id" : "36",
-            "sourceId" : "25",
-            "tags" : "Relationship"
+            "destinationId" : "39",
+            "id" : "52",
+            "sourceId" : "38",
+            "tags" : "Relationship",
+            "technology" : "Method Call"
           }, {
-            "description" : "Dispatches external events to",
-            "destinationId" : "31",
-            "id" : "42",
-            "sourceId" : "25",
-            "tags" : "Relationship"
-          }, {
-            "description" : "Dispatches external events to",
-            "destinationId" : "32",
-            "id" : "43",
-            "sourceId" : "25",
-            "tags" : "Relationship"
+            "description" : "Collects new events from domain",
+            "destinationId" : "40",
+            "id" : "55",
+            "sourceId" : "38",
+            "tags" : "Relationship",
+            "technology" : "Method Call"
           } ],
           "tags" : "Element,Component",
           "technology" : "Python"
         }, {
           "description" : "Orchestrates use cases and manages the domain model.",
           "documentation" : { },
-          "id" : "26",
+          "id" : "39",
           "name" : "Service Handlers",
           "properties" : {
             "structurizr.dsl.identifier" : "handlers"
           },
           "relationships" : [ {
             "description" : "Uses for transactions",
-            "destinationId" : "27",
-            "id" : "37",
-            "sourceId" : "26",
-            "tags" : "Relationship"
+            "destinationId" : "40",
+            "id" : "53",
+            "sourceId" : "39",
+            "tags" : "Relationship",
+            "technology" : "Method Call"
           }, {
             "description" : "Mutates",
-            "destinationId" : "28",
-            "id" : "38",
-            "sourceId" : "26",
-            "tags" : "Relationship"
+            "destinationId" : "41",
+            "id" : "54",
+            "sourceId" : "39",
+            "tags" : "Relationship",
+            "technology" : "Method Call"
+          }, {
+            "description" : "Dispatches external events to",
+            "destinationId" : "45",
+            "id" : "58",
+            "sourceId" : "39",
+            "tags" : "Relationship",
+            "technology" : "Method Call"
+          }, {
+            "description" : "Dispatches external events to",
+            "destinationId" : "46",
+            "id" : "59",
+            "sourceId" : "39",
+            "tags" : "Relationship",
+            "technology" : "Method Call"
           } ],
           "tags" : "Element,Component",
           "technology" : "Python"
         }, {
           "description" : "Manages atomic transactions and provides access to the repository.",
           "documentation" : { },
-          "id" : "27",
+          "id" : "40",
           "name" : "Unit of Work",
           "properties" : {
             "structurizr.dsl.identifier" : "uow"
           },
           "relationships" : [ {
             "description" : "Provides access to",
-            "destinationId" : "29",
-            "id" : "39",
-            "sourceId" : "27",
-            "tags" : "Relationship"
-          }, {
-            "description" : "Collects new events from domain and dispatches to",
-            "destinationId" : "25",
-            "id" : "40",
-            "sourceId" : "27",
-            "tags" : "Relationship"
+            "destinationId" : "42",
+            "id" : "56",
+            "sourceId" : "40",
+            "tags" : "Relationship",
+            "technology" : "Method Call"
           }, {
             "description" : "Commits transactions to",
             "destinationId" : "5",
-            "id" : "46",
-            "sourceId" : "27",
+            "id" : "62",
+            "sourceId" : "40",
             "tags" : "Relationship",
             "technology" : "SQLAlchemy"
           } ],
@@ -347,7 +460,7 @@
         }, {
           "description" : "Contains core business logic, aggregates, and entities.",
           "documentation" : { },
-          "id" : "28",
+          "id" : "41",
           "name" : "Domain Model",
           "properties" : {
             "structurizr.dsl.identifier" : "domainModel"
@@ -357,22 +470,23 @@
         }, {
           "description" : "Abstracts data access to the database.",
           "documentation" : { },
-          "id" : "29",
+          "id" : "42",
           "name" : "Repository",
           "properties" : {
             "structurizr.dsl.identifier" : "repository"
           },
           "relationships" : [ {
             "description" : "Loads and saves",
-            "destinationId" : "28",
-            "id" : "41",
-            "sourceId" : "29",
-            "tags" : "Relationship"
+            "destinationId" : "41",
+            "id" : "57",
+            "sourceId" : "42",
+            "tags" : "Relationship",
+            "technology" : "Method Call"
           }, {
             "description" : "Reads from and writes to",
             "destinationId" : "5",
-            "id" : "44",
-            "sourceId" : "29",
+            "id" : "60",
+            "sourceId" : "42",
             "tags" : "Relationship",
             "technology" : "SQLAlchemy"
           } ],
@@ -381,24 +495,43 @@
         }, {
           "description" : "Executes raw SQL queries for fast reads, bypassing the domain model.",
           "documentation" : { },
-          "id" : "30",
+          "id" : "43",
           "name" : "Read Model Views",
           "properties" : {
             "structurizr.dsl.identifier" : "readModelViews"
           },
           "relationships" : [ {
             "description" : "Uses for database session",
-            "destinationId" : "27",
-            "id" : "35",
-            "sourceId" : "30",
-            "tags" : "Relationship"
+            "destinationId" : "40",
+            "id" : "51",
+            "sourceId" : "43",
+            "tags" : "Relationship",
+            "technology" : "Method Call"
+          } ],
+          "tags" : "Element,Component",
+          "technology" : "Python"
+        }, {
+          "description" : "Wires up dependency injection and initializes the Message Bus.",
+          "documentation" : { },
+          "id" : "44",
+          "name" : "Bootstrap",
+          "properties" : {
+            "structurizr.dsl.identifier" : "bootstrap"
+          },
+          "relationships" : [ {
+            "description" : "Injects handlers into",
+            "destinationId" : "38",
+            "id" : "48",
+            "sourceId" : "44",
+            "tags" : "Relationship",
+            "technology" : "Method Call"
           } ],
           "tags" : "Element,Component",
           "technology" : "Python"
         }, {
           "description" : "Sends external emails.",
           "documentation" : { },
-          "id" : "31",
+          "id" : "45",
           "name" : "Email Adapter",
           "properties" : {
             "structurizr.dsl.identifier" : "emailAdapter"
@@ -406,8 +539,8 @@
           "relationships" : [ {
             "description" : "Sends emails using",
             "destinationId" : "2",
-            "id" : "47",
-            "sourceId" : "31",
+            "id" : "63",
+            "sourceId" : "45",
             "tags" : "Relationship",
             "technology" : "SMTP"
           } ],
@@ -416,7 +549,7 @@
         }, {
           "description" : "Publishes events to Redis.",
           "documentation" : { },
-          "id" : "32",
+          "id" : "46",
           "name" : "Redis Publisher",
           "properties" : {
             "structurizr.dsl.identifier" : "redisPublisher"
@@ -424,8 +557,8 @@
           "relationships" : [ {
             "description" : "Publishes events to",
             "destinationId" : "6",
-            "id" : "50",
-            "sourceId" : "32",
+            "id" : "65",
+            "sourceId" : "46",
             "tags" : "Relationship",
             "technology" : "Redis Pub/Sub"
           } ],
@@ -434,7 +567,7 @@
         } ],
         "description" : "Provides stock allocation functionality via a JSON/HTTP API.",
         "documentation" : { },
-        "id" : "23",
+        "id" : "36",
         "name" : "Web API",
         "properties" : {
           "structurizr.dsl.identifier" : "webApi"
@@ -442,23 +575,23 @@
         "relationships" : [ {
           "description" : "Reads from and writes to",
           "destinationId" : "5",
-          "id" : "45",
-          "linkedRelationshipId" : "44",
-          "sourceId" : "23",
+          "id" : "61",
+          "linkedRelationshipId" : "60",
+          "sourceId" : "36",
           "technology" : "SQLAlchemy"
         }, {
           "description" : "Sends emails using",
           "destinationId" : "2",
-          "id" : "48",
-          "linkedRelationshipId" : "47",
-          "sourceId" : "23",
+          "id" : "64",
+          "linkedRelationshipId" : "63",
+          "sourceId" : "36",
           "technology" : "SMTP"
         }, {
           "description" : "Publishes events to",
           "destinationId" : "6",
-          "id" : "51",
-          "linkedRelationshipId" : "50",
-          "sourceId" : "23",
+          "id" : "66",
+          "linkedRelationshipId" : "65",
+          "sourceId" : "36",
           "technology" : "Redis Pub/Sub"
         } ],
         "tags" : "Element,Container",
@@ -474,18 +607,18 @@
       "relationships" : [ {
         "description" : "Sends emails using",
         "destinationId" : "2",
-        "id" : "49",
-        "linkedRelationshipId" : "47",
+        "id" : "33",
+        "linkedRelationshipId" : "31",
         "sourceId" : "4",
         "technology" : "SMTP"
       } ],
       "tags" : "Element,Software System"
     } ]
   },
-  "name" : "Name",
+  "name" : "Allocation Workspace",
   "properties" : {
-    "structurizr.inspection.error" : "20",
-    "structurizr.dsl" : "d29ya3NwYWNlIHsKCiAgICBtb2RlbCB7CiAgICAgICAgdXNlciA9IHBlcnNvbiAiVXNlciIgIkEgY3VzdG9tZXIgb3Igc3lzdGVtIHdhbnRpbmcgdG8gYWxsb2NhdGUgc3RvY2suIgogICAgICAgIGVtYWlsU3lzdGVtID0gc29mdHdhcmVTeXN0ZW0gIkVtYWlsIFN5c3RlbSIgIkV4dGVybmFsIGVtYWlsIHN5c3RlbSBmb3Igc2VuZGluZyBub3RpZmljYXRpb25zLiIgIkV4aXN0aW5nIFN5c3RlbSIKICAgICAgICB3YXJlaG91c2VTeXN0ZW0gPSBzb2Z0d2FyZVN5c3RlbSAiV2FyZWhvdXNlIFN5c3RlbSIgIk1hbmFnZXMgcGh5c2ljYWwgaW52ZW50b3J5IGFuZCByZXBvcnRzIGJhdGNoIGRhbWFnZS4iICJFeHRlcm5hbCBTeXN0ZW0iCiAgICAgICAgCiAgICAgICAgYWxsb2NhdGlvblN5c3RlbSA9IHNvZnR3YXJlU3lzdGVtICJBbGxvY2F0aW9uIFN5c3RlbSIgIkFsbG93cyB1c2VycyB0byBhbGxvY2F0ZSBzdG9jayBhZ2FpbnN0IGJhdGNoZXMgb2YgaW52ZW50b3J5LiIgewogICAgICAgICAgICBkYXRhYmFzZSA9IGNvbnRhaW5lciAiRGF0YWJhc2UiICJTdG9yZXMgc3RvY2ssIGJhdGNoZXMsIGFuZCBhbGxvY2F0aW9uIGRhdGEuIiAiUG9zdGdyZVNRTCIgIkRhdGFiYXNlIgogICAgICAgICAgICBtZXNzYWdlQnJva2VyID0gY29udGFpbmVyICJNZXNzYWdlIEJyb2tlciIgIkhhbmRsZXMgYXN5bmNocm9ub3VzIGV2ZW50IG1lc3NhZ2luZy4iICJSZWRpcyIKICAgICAgICAgICAgZXZlbnRDb25zdW1lciA9IGNvbnRhaW5lciAiRXZlbnQgQ29uc3VtZXIiICJDb25zdW1lcyBldmVudHMgZnJvbSBSZWRpcyBhbmQgdHJpZ2dlcnMgZG9tYWluIGFjdGlvbnMuIiAiUHl0aG9uIiB7CiAgICAgICAgICAgICAgICByZWRpc1N1YnNjcmliZXIgPSBjb21wb25lbnQgIlJlZGlzIFN1YnNjcmliZXIiICJMaXN0ZW5zIHRvIFJlZGlzIGNoYW5uZWxzIGFuZCB0cmFuc2xhdGVzIG1lc3NhZ2VzIHRvIGNvbW1hbmRzLiIgIlB5dGhvbiIKICAgICAgICAgICAgICAgIG1lc3NhZ2VCdXNDb25zdW1lciA9IGNvbXBvbmVudCAiTWVzc2FnZSBCdXMiICJSb3V0ZXMgY29tbWFuZHMgdG8gdGhlaXIgcmVzcGVjdGl2ZSBoYW5kbGVycy4iICJQeXRob24iCiAgICAgICAgICAgICAgICBoYW5kbGVyc0NvbnN1bWVyID0gY29tcG9uZW50ICJTZXJ2aWNlIEhhbmRsZXJzIiAiT3JjaGVzdHJhdGVzIHVzZSBjYXNlcyBhbmQgbWFuYWdlcyB0aGUgZG9tYWluIG1vZGVsLiIgIlB5dGhvbiIKICAgICAgICAgICAgICAgIHVvd0NvbnN1bWVyID0gY29tcG9uZW50ICJVbml0IG9mIFdvcmsiICJNYW5hZ2VzIGF0b21pYyB0cmFuc2FjdGlvbnMuIiAiUHl0aG9uIgogICAgICAgICAgICAgICAgZG9tYWluTW9kZWxDb25zdW1lciA9IGNvbXBvbmVudCAiRG9tYWluIE1vZGVsIiAiQ29udGFpbnMgY29yZSBidXNpbmVzcyBsb2dpYy4iICJQeXRob24iCiAgICAgICAgICAgICAgICByZXBvc2l0b3J5Q29uc3VtZXIgPSBjb21wb25lbnQgIlJlcG9zaXRvcnkiICJBYnN0cmFjdHMgZGF0YSBhY2Nlc3MuIiAiUHl0aG9uIgoKICAgICAgICAgICAgICAgICMgQ29tcG9uZW50IHJlbGF0aW9uc2hpcHMKICAgICAgICAgICAgICAgIHJlZGlzU3Vic2NyaWJlciAtPiBtZXNzYWdlQnVzQ29uc3VtZXIgIkRpc3BhdGNoZXMgY29tbWFuZHMgdG8iCiAgICAgICAgICAgICAgICBtZXNzYWdlQnVzQ29uc3VtZXIgLT4gaGFuZGxlcnNDb25zdW1lciAiUm91dGVzIHRvIgogICAgICAgICAgICAgICAgaGFuZGxlcnNDb25zdW1lciAtPiB1b3dDb25zdW1lciAiVXNlcyBmb3IgdHJhbnNhY3Rpb25zIgogICAgICAgICAgICAgICAgaGFuZGxlcnNDb25zdW1lciAtPiBkb21haW5Nb2RlbENvbnN1bWVyICJNdXRhdGVzIgogICAgICAgICAgICAgICAgdW93Q29uc3VtZXIgLT4gcmVwb3NpdG9yeUNvbnN1bWVyICJQcm92aWRlcyBhY2Nlc3MgdG8iCiAgICAgICAgICAgICAgICByZXBvc2l0b3J5Q29uc3VtZXIgLT4gZG9tYWluTW9kZWxDb25zdW1lciAiTG9hZHMgYW5kIHNhdmVzIgogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAjIEV4dGVybmFsIGNvbm5lY3Rpb25zCiAgICAgICAgICAgICAgICByZXBvc2l0b3J5Q29uc3VtZXIgLT4gZGF0YWJhc2UgIlJlYWRzIGZyb20gYW5kIHdyaXRlcyB0byIgIlNRTEFsY2hlbXkiCiAgICAgICAgICAgICAgICB1b3dDb25zdW1lciAtPiBkYXRhYmFzZSAiQ29tbWl0cyB0cmFuc2FjdGlvbnMgdG8iICJTUUxBbGNoZW15IgogICAgICAgICAgICB9CiAgICAgICAgICAgIAogICAgICAgICAgICB3ZWJBcGkgPSBjb250YWluZXIgIldlYiBBUEkiICJQcm92aWRlcyBzdG9jayBhbGxvY2F0aW9uIGZ1bmN0aW9uYWxpdHkgdmlhIGEgSlNPTi9IVFRQIEFQSS4iICJQeXRob24vRmxhc2siIHsKICAgICAgICAgICAgICAgIGFwaSA9IGNvbXBvbmVudCAiQVBJIEVudHJ5cG9pbnQiICJGbGFzayBhcHBsaWNhdGlvbiBwcm92aWRpbmcgdGhlIEhUVFAgaW50ZXJmYWNlLiIgIlB5dGhvbi9GbGFzayIKICAgICAgICAgICAgICAgIG1lc3NhZ2VCdXMgPSBjb21wb25lbnQgIk1lc3NhZ2UgQnVzIiAiUm91dGVzIGNvbW1hbmRzIGFuZCBldmVudHMgdG8gdGhlaXIgcmVzcGVjdGl2ZSBoYW5kbGVycy4iICJQeXRob24iCiAgICAgICAgICAgICAgICBoYW5kbGVycyA9IGNvbXBvbmVudCAiU2VydmljZSBIYW5kbGVycyIgIk9yY2hlc3RyYXRlcyB1c2UgY2FzZXMgYW5kIG1hbmFnZXMgdGhlIGRvbWFpbiBtb2RlbC4iICJQeXRob24iCiAgICAgICAgICAgICAgICB1b3cgPSBjb21wb25lbnQgIlVuaXQgb2YgV29yayIgIk1hbmFnZXMgYXRvbWljIHRyYW5zYWN0aW9ucyBhbmQgcHJvdmlkZXMgYWNjZXNzIHRvIHRoZSByZXBvc2l0b3J5LiIgIlB5dGhvbiIKICAgICAgICAgICAgICAgIGRvbWFpbk1vZGVsID0gY29tcG9uZW50ICJEb21haW4gTW9kZWwiICJDb250YWlucyBjb3JlIGJ1c2luZXNzIGxvZ2ljLCBhZ2dyZWdhdGVzLCBhbmQgZW50aXRpZXMuIiAiUHl0aG9uIgogICAgICAgICAgICAgICAgcmVwb3NpdG9yeSA9IGNvbXBvbmVudCAiUmVwb3NpdG9yeSIgIkFic3RyYWN0cyBkYXRhIGFjY2VzcyB0byB0aGUgZGF0YWJhc2UuIiAiUHl0aG9uIgogICAgICAgICAgICAgICAgcmVhZE1vZGVsVmlld3MgPSBjb21wb25lbnQgIlJlYWQgTW9kZWwgVmlld3MiICJFeGVjdXRlcyByYXcgU1FMIHF1ZXJpZXMgZm9yIGZhc3QgcmVhZHMsIGJ5cGFzc2luZyB0aGUgZG9tYWluIG1vZGVsLiIgIlB5dGhvbiIKICAgICAgICAgICAgICAgIGVtYWlsQWRhcHRlciA9IGNvbXBvbmVudCAiRW1haWwgQWRhcHRlciIgIlNlbmRzIGV4dGVybmFsIGVtYWlscy4iICJQeXRob24iCiAgICAgICAgICAgICAgICByZWRpc1B1Ymxpc2hlciA9IGNvbXBvbmVudCAiUmVkaXMgUHVibGlzaGVyIiAiUHVibGlzaGVzIGV2ZW50cyB0byBSZWRpcy4iICJQeXRob24iCgogICAgICAgICAgICAgICAgIyBDb21wb25lbnQgcmVsYXRpb25zaGlwcwogICAgICAgICAgICAgICAgYXBpIC0+IG1lc3NhZ2VCdXMgIkRpc3BhdGNoZXMgY29tbWFuZHMgdG8iCiAgICAgICAgICAgICAgICBhcGkgLT4gcmVhZE1vZGVsVmlld3MgIlF1ZXJpZXMgZGF0YSBmcm9tIgogICAgICAgICAgICAgICAgcmVhZE1vZGVsVmlld3MgLT4gdW93ICJVc2VzIGZvciBkYXRhYmFzZSBzZXNzaW9uIgogICAgICAgICAgICAgICAgbWVzc2FnZUJ1cyAtPiBoYW5kbGVycyAiUm91dGVzIHRvIgogICAgICAgICAgICAgICAgaGFuZGxlcnMgLT4gdW93ICJVc2VzIGZvciB0cmFuc2FjdGlvbnMiCiAgICAgICAgICAgICAgICBoYW5kbGVycyAtPiBkb21haW5Nb2RlbCAiTXV0YXRlcyIKICAgICAgICAgICAgICAgIHVvdyAtPiByZXBvc2l0b3J5ICJQcm92aWRlcyBhY2Nlc3MgdG8iCiAgICAgICAgICAgICAgICB1b3cgLT4gbWVzc2FnZUJ1cyAiQ29sbGVjdHMgbmV3IGV2ZW50cyBmcm9tIGRvbWFpbiBhbmQgZGlzcGF0Y2hlcyB0byIKICAgICAgICAgICAgICAgIHJlcG9zaXRvcnkgLT4gZG9tYWluTW9kZWwgIkxvYWRzIGFuZCBzYXZlcyIKICAgICAgICAgICAgICAgIG1lc3NhZ2VCdXMgLT4gZW1haWxBZGFwdGVyICJEaXNwYXRjaGVzIGV4dGVybmFsIGV2ZW50cyB0byIKICAgICAgICAgICAgICAgIG1lc3NhZ2VCdXMgLT4gcmVkaXNQdWJsaXNoZXIgIkRpc3BhdGNoZXMgZXh0ZXJuYWwgZXZlbnRzIHRvIgogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAjIEV4dGVybmFsIGNvbm5lY3Rpb25zIGZyb20gY29tcG9uZW50cwogICAgICAgICAgICAgICAgcmVwb3NpdG9yeSAtPiBkYXRhYmFzZSAiUmVhZHMgZnJvbSBhbmQgd3JpdGVzIHRvIiAiU1FMQWxjaGVteSIKICAgICAgICAgICAgICAgIHVvdyAtPiBkYXRhYmFzZSAiQ29tbWl0cyB0cmFuc2FjdGlvbnMgdG8iICJTUUxBbGNoZW15IgogICAgICAgICAgICAgICAgZW1haWxBZGFwdGVyIC0+IGVtYWlsU3lzdGVtICJTZW5kcyBlbWFpbHMgdXNpbmciICJTTVRQIgogICAgICAgICAgICAgICAgcmVkaXNQdWJsaXNoZXIgLT4gbWVzc2FnZUJyb2tlciAiUHVibGlzaGVzIGV2ZW50cyB0byIgIlJlZGlzIFB1Yi9TdWIiCiAgICAgICAgICAgIH0KICAgICAgICB9CgogICAgICAgICMgUmVsYXRpb25zaGlwcwogICAgICAgIHVzZXIgLT4gYXBpICJNYWtlcyBBUEkgY2FsbHMgdG8iICJKU09OL0hUVFAiCiAgICAgICAgcmVkaXNTdWJzY3JpYmVyIC0+IG1lc3NhZ2VCcm9rZXIgIlN1YnNjcmliZXMgdG8gZXZlbnRzL2NvbW1hbmRzIGZyb20iICJSZWRpcyBQdWIvU3ViIgogICAgICAgIHdhcmVob3VzZVN5c3RlbSAtPiBtZXNzYWdlQnJva2VyICJQdWJsaXNoZXMgaW52ZW50b3J5IGNoYW5nZSBjb21tYW5kcyB0byIgIlJlZGlzIFB1Yi9TdWIiCiAgICB9CgogICAgdmlld3MgewogICAgICAgIHN5c3RlbUNvbnRleHQgYWxsb2NhdGlvblN5c3RlbSAiU3lzdGVtQ29udGV4dCIgewogICAgICAgICAgICBpbmNsdWRlICoKICAgICAgICAgICAgYXV0b0xheW91dAogICAgICAgIH0KCiAgICAgICAgY29udGFpbmVyIGFsbG9jYXRpb25TeXN0ZW0gIkNvbnRhaW5lcnMiIHsKICAgICAgICAgICAgaW5jbHVkZSAqCiAgICAgICAgICAgIGF1dG9MYXlvdXQKICAgICAgICB9CgogICAgICAgIGNvbXBvbmVudCB3ZWJBcGkgIldlYkFwaUNvbXBvbmVudHMiIHsKICAgICAgICAgICAgaW5jbHVkZSAqCiAgICAgICAgICAgIGF1dG9MYXlvdXQKICAgICAgICB9CgogICAgICAgIGNvbXBvbmVudCBldmVudENvbnN1bWVyICJFdmVudENvbnN1bWVyQ29tcG9uZW50cyIgewogICAgICAgICAgICBpbmNsdWRlICoKICAgICAgICAgICAgYXV0b0xheW91dAogICAgICAgIH0KCiAgICAgICAgc3R5bGVzIHsKICAgICAgICAgICAgZWxlbWVudCAiU29mdHdhcmUgU3lzdGVtIiB7CiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICMxMTY4YmQKICAgICAgICAgICAgICAgIGNvbG9yICNmZmZmZmYKICAgICAgICAgICAgfQogICAgICAgICAgICBlbGVtZW50ICJQZXJzb24iIHsKICAgICAgICAgICAgICAgIHNoYXBlIHBlcnNvbgogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAjMDg0MjdiCiAgICAgICAgICAgICAgICBjb2xvciAjZmZmZmZmCiAgICAgICAgICAgIH0KICAgICAgICAgICAgZWxlbWVudCAiQ29udGFpbmVyIiB7CiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICM0MzhkZDUKICAgICAgICAgICAgICAgIGNvbG9yICNmZmZmZmYKICAgICAgICAgICAgfQogICAgICAgICAgICBlbGVtZW50ICJDb21wb25lbnQiIHsKICAgICAgICAgICAgICAgIGJhY2tncm91bmQgIzg1YmJmMAogICAgICAgICAgICAgICAgY29sb3IgIzAwMDAwMAogICAgICAgICAgICB9CiAgICAgICAgICAgIGVsZW1lbnQgIkRhdGFiYXNlIiB7CiAgICAgICAgICAgICAgICBzaGFwZSBjeWxpbmRlcgogICAgICAgICAgICB9CiAgICAgICAgfQogICAgfQoKfQ==",
+    "structurizr.inspection.error" : "2",
+    "structurizr.dsl" : "d29ya3NwYWNlICJBbGxvY2F0aW9uIFdvcmtzcGFjZSIgIkFyY2hpdGVjdHVyZSBvZiB0aGUgQWxsb2NhdGlvbiBTeXN0ZW0iIHsKICAgIGNvbmZpZ3VyYXRpb24gewogICAgICAgIHNjb3BlIHNvZnR3YXJlc3lzdGVtCiAgICB9CiAgICBtb2RlbCB7CiAgICAgICAgdXNlciA9IHBlcnNvbiAiVXNlciIgIkEgY3VzdG9tZXIgb3Igc3lzdGVtIHdhbnRpbmcgdG8gYWxsb2NhdGUgc3RvY2suIgogICAgICAgIGVtYWlsU3lzdGVtID0gc29mdHdhcmVTeXN0ZW0gIkVtYWlsIFN5c3RlbSIgIkV4dGVybmFsIGVtYWlsIHN5c3RlbSBmb3Igc2VuZGluZyBub3RpZmljYXRpb25zLiIgIkV4aXN0aW5nIFN5c3RlbSIKICAgICAgICB3YXJlaG91c2VTeXN0ZW0gPSBzb2Z0d2FyZVN5c3RlbSAiV2FyZWhvdXNlIFN5c3RlbSIgIk1hbmFnZXMgcGh5c2ljYWwgaW52ZW50b3J5IGFuZCByZXBvcnRzIGJhdGNoIGRhbWFnZS4iICJFeHRlcm5hbCBTeXN0ZW0iCiAgICAgICAgCiAgICAgICAgYWxsb2NhdGlvblN5c3RlbSA9IHNvZnR3YXJlU3lzdGVtICJBbGxvY2F0aW9uIFN5c3RlbSIgIkFsbG93cyB1c2VycyB0byBhbGxvY2F0ZSBzdG9jayBhZ2FpbnN0IGJhdGNoZXMgb2YgaW52ZW50b3J5LiIgewogICAgICAgICAgICBkYXRhYmFzZSA9IGNvbnRhaW5lciAiRGF0YWJhc2UiICJTdG9yZXMgc3RvY2ssIGJhdGNoZXMsIGFuZCBhbGxvY2F0aW9uIGRhdGEuIiAiUG9zdGdyZVNRTCIgIkRhdGFiYXNlIgogICAgICAgICAgICBtZXNzYWdlQnJva2VyID0gY29udGFpbmVyICJNZXNzYWdlIEJyb2tlciIgIkhhbmRsZXMgYXN5bmNocm9ub3VzIGV2ZW50IG1lc3NhZ2luZy4iICJSZWRpcyIKICAgICAgICAgICAgZXZlbnRDb25zdW1lciA9IGNvbnRhaW5lciAiRXZlbnQgQ29uc3VtZXIiICJDb25zdW1lcyBldmVudHMgZnJvbSBSZWRpcyBhbmQgdHJpZ2dlcnMgZG9tYWluIGFjdGlvbnMuIiAiUHl0aG9uIiB7CiAgICAgICAgICAgICAgICByZWRpc1N1YnNjcmliZXIgPSBjb21wb25lbnQgIlJlZGlzIFN1YnNjcmliZXIiICJMaXN0ZW5zIHRvIFJlZGlzIGNoYW5uZWxzIGFuZCB0cmFuc2xhdGVzIG1lc3NhZ2VzIHRvIGNvbW1hbmRzLiIgIlB5dGhvbiIKICAgICAgICAgICAgICAgIGJvb3RzdHJhcENvbnN1bWVyID0gY29tcG9uZW50ICJCb290c3RyYXAiICJXaXJlcyB1cCBkZXBlbmRlbmN5IGluamVjdGlvbiBhbmQgaW5pdGlhbGl6ZXMgdGhlIE1lc3NhZ2UgQnVzLiIgIlB5dGhvbiIKICAgICAgICAgICAgICAgIG1lc3NhZ2VCdXNDb25zdW1lciA9IGNvbXBvbmVudCAiTWVzc2FnZSBCdXMiICJSb3V0ZXMgY29tbWFuZHMgdG8gdGhlaXIgcmVzcGVjdGl2ZSBoYW5kbGVycy4iICJQeXRob24iCiAgICAgICAgICAgICAgICBoYW5kbGVyc0NvbnN1bWVyID0gY29tcG9uZW50ICJTZXJ2aWNlIEhhbmRsZXJzIiAiT3JjaGVzdHJhdGVzIHVzZSBjYXNlcyBhbmQgbWFuYWdlcyB0aGUgZG9tYWluIG1vZGVsLiIgIlB5dGhvbiIKICAgICAgICAgICAgICAgIHVvd0NvbnN1bWVyID0gY29tcG9uZW50ICJVbml0IG9mIFdvcmsiICJNYW5hZ2VzIGF0b21pYyB0cmFuc2FjdGlvbnMuIiAiUHl0aG9uIgogICAgICAgICAgICAgICAgZG9tYWluTW9kZWxDb25zdW1lciA9IGNvbXBvbmVudCAiRG9tYWluIE1vZGVsIiAiQ29udGFpbnMgY29yZSBidXNpbmVzcyBsb2dpYy4iICJQeXRob24iCiAgICAgICAgICAgICAgICByZXBvc2l0b3J5Q29uc3VtZXIgPSBjb21wb25lbnQgIlJlcG9zaXRvcnkiICJBYnN0cmFjdHMgZGF0YSBhY2Nlc3MuIiAiUHl0aG9uIgogICAgICAgICAgICAgICAgZW1haWxBZGFwdGVyQ29uc3VtZXIgPSBjb21wb25lbnQgIkVtYWlsIEFkYXB0ZXIiICJTZW5kcyBleHRlcm5hbCBlbWFpbHMuIiAiUHl0aG9uIgogICAgICAgICAgICAgICAgcmVkaXNQdWJsaXNoZXJDb25zdW1lciA9IGNvbXBvbmVudCAiUmVkaXMgUHVibGlzaGVyIiAiUHVibGlzaGVzIGV2ZW50cyB0byBSZWRpcy4iICJQeXRob24iCgogICAgICAgICAgICAgICAgIyBDb21wb25lbnQgcmVsYXRpb25zaGlwcwogICAgICAgICAgICAgICAgcmVkaXNTdWJzY3JpYmVyIC0+IGJvb3RzdHJhcENvbnN1bWVyICJJbml0aWFsaXplcyIgIk1ldGhvZCBDYWxsIgogICAgICAgICAgICAgICAgYm9vdHN0cmFwQ29uc3VtZXIgLT4gbWVzc2FnZUJ1c0NvbnN1bWVyICJJbmplY3RzIGhhbmRsZXJzIGludG8iICJNZXRob2QgQ2FsbCIKICAgICAgICAgICAgICAgIHJlZGlzU3Vic2NyaWJlciAtPiBtZXNzYWdlQnVzQ29uc3VtZXIgIkRpc3BhdGNoZXMgY29tbWFuZHMgdG8iICJNZXRob2QgQ2FsbCIKICAgICAgICAgICAgICAgIG1lc3NhZ2VCdXNDb25zdW1lciAtPiBoYW5kbGVyc0NvbnN1bWVyICJSb3V0ZXMgdG8iICJNZXRob2QgQ2FsbCIKICAgICAgICAgICAgICAgIGhhbmRsZXJzQ29uc3VtZXIgLT4gdW93Q29uc3VtZXIgIlVzZXMgZm9yIHRyYW5zYWN0aW9ucyIgIk1ldGhvZCBDYWxsIgogICAgICAgICAgICAgICAgaGFuZGxlcnNDb25zdW1lciAtPiBkb21haW5Nb2RlbENvbnN1bWVyICJNdXRhdGVzIiAiTWV0aG9kIENhbGwiCiAgICAgICAgICAgICAgICBtZXNzYWdlQnVzQ29uc3VtZXIgLT4gdW93Q29uc3VtZXIgIkNvbGxlY3RzIG5ldyBldmVudHMgZnJvbSBkb21haW4iICJNZXRob2QgQ2FsbCIKICAgICAgICAgICAgICAgIHVvd0NvbnN1bWVyIC0+IHJlcG9zaXRvcnlDb25zdW1lciAiUHJvdmlkZXMgYWNjZXNzIHRvIiAiTWV0aG9kIENhbGwiCiAgICAgICAgICAgICAgICByZXBvc2l0b3J5Q29uc3VtZXIgLT4gZG9tYWluTW9kZWxDb25zdW1lciAiTG9hZHMgYW5kIHNhdmVzIiAiTWV0aG9kIENhbGwiCiAgICAgICAgICAgICAgICBoYW5kbGVyc0NvbnN1bWVyIC0+IGVtYWlsQWRhcHRlckNvbnN1bWVyICJEaXNwYXRjaGVzIGV4dGVybmFsIGV2ZW50cyB0byIgIk1ldGhvZCBDYWxsIgogICAgICAgICAgICAgICAgaGFuZGxlcnNDb25zdW1lciAtPiByZWRpc1B1Ymxpc2hlckNvbnN1bWVyICJEaXNwYXRjaGVzIGV4dGVybmFsIGV2ZW50cyB0byIgIk1ldGhvZCBDYWxsIgogICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAjIEV4dGVybmFsIGNvbm5lY3Rpb25zCiAgICAgICAgICAgICAgICByZXBvc2l0b3J5Q29uc3VtZXIgLT4gZGF0YWJhc2UgIlJlYWRzIGZyb20gYW5kIHdyaXRlcyB0byIgIlNRTEFsY2hlbXkiCiAgICAgICAgICAgICAgICB1b3dDb25zdW1lciAtPiBkYXRhYmFzZSAiQ29tbWl0cyB0cmFuc2FjdGlvbnMgdG8iICJTUUxBbGNoZW15IgogICAgICAgICAgICAgICAgZW1haWxBZGFwdGVyQ29uc3VtZXIgLT4gZW1haWxTeXN0ZW0gIlNlbmRzIGVtYWlscyB1c2luZyIgIlNNVFAiCiAgICAgICAgICAgICAgICByZWRpc1B1Ymxpc2hlckNvbnN1bWVyIC0+IG1lc3NhZ2VCcm9rZXIgIlB1Ymxpc2hlcyBldmVudHMgdG8iICJSZWRpcyBQdWIvU3ViIgogICAgICAgICAgICB9CiAgICAgICAgICAgIAogICAgICAgICAgICB3ZWJBcGkgPSBjb250YWluZXIgIldlYiBBUEkiICJQcm92aWRlcyBzdG9jayBhbGxvY2F0aW9uIGZ1bmN0aW9uYWxpdHkgdmlhIGEgSlNPTi9IVFRQIEFQSS4iICJQeXRob24vRmxhc2siIHsKICAgICAgICAgICAgICAgIGFwaSA9IGNvbXBvbmVudCAiQVBJIEVudHJ5cG9pbnQiICJGbGFzayBhcHBsaWNhdGlvbiBwcm92aWRpbmcgdGhlIEhUVFAgaW50ZXJmYWNlLiIgIlB5dGhvbi9GbGFzayIKICAgICAgICAgICAgICAgIG1lc3NhZ2VCdXMgPSBjb21wb25lbnQgIk1lc3NhZ2UgQnVzIiAiUm91dGVzIGNvbW1hbmRzIGFuZCBldmVudHMgdG8gdGhlaXIgcmVzcGVjdGl2ZSBoYW5kbGVycy4iICJQeXRob24iCiAgICAgICAgICAgICAgICBoYW5kbGVycyA9IGNvbXBvbmVudCAiU2VydmljZSBIYW5kbGVycyIgIk9yY2hlc3RyYXRlcyB1c2UgY2FzZXMgYW5kIG1hbmFnZXMgdGhlIGRvbWFpbiBtb2RlbC4iICJQeXRob24iCiAgICAgICAgICAgICAgICB1b3cgPSBjb21wb25lbnQgIlVuaXQgb2YgV29yayIgIk1hbmFnZXMgYXRvbWljIHRyYW5zYWN0aW9ucyBhbmQgcHJvdmlkZXMgYWNjZXNzIHRvIHRoZSByZXBvc2l0b3J5LiIgIlB5dGhvbiIKICAgICAgICAgICAgICAgIGRvbWFpbk1vZGVsID0gY29tcG9uZW50ICJEb21haW4gTW9kZWwiICJDb250YWlucyBjb3JlIGJ1c2luZXNzIGxvZ2ljLCBhZ2dyZWdhdGVzLCBhbmQgZW50aXRpZXMuIiAiUHl0aG9uIgogICAgICAgICAgICAgICAgcmVwb3NpdG9yeSA9IGNvbXBvbmVudCAiUmVwb3NpdG9yeSIgIkFic3RyYWN0cyBkYXRhIGFjY2VzcyB0byB0aGUgZGF0YWJhc2UuIiAiUHl0aG9uIgogICAgICAgICAgICAgICAgcmVhZE1vZGVsVmlld3MgPSBjb21wb25lbnQgIlJlYWQgTW9kZWwgVmlld3MiICJFeGVjdXRlcyByYXcgU1FMIHF1ZXJpZXMgZm9yIGZhc3QgcmVhZHMsIGJ5cGFzc2luZyB0aGUgZG9tYWluIG1vZGVsLiIgIlB5dGhvbiIKICAgICAgICAgICAgICAgIGJvb3RzdHJhcCA9IGNvbXBvbmVudCAiQm9vdHN0cmFwIiAiV2lyZXMgdXAgZGVwZW5kZW5jeSBpbmplY3Rpb24gYW5kIGluaXRpYWxpemVzIHRoZSBNZXNzYWdlIEJ1cy4iICJQeXRob24iCiAgICAgICAgICAgICAgICBlbWFpbEFkYXB0ZXIgPSBjb21wb25lbnQgIkVtYWlsIEFkYXB0ZXIiICJTZW5kcyBleHRlcm5hbCBlbWFpbHMuIiAiUHl0aG9uIgogICAgICAgICAgICAgICAgcmVkaXNQdWJsaXNoZXIgPSBjb21wb25lbnQgIlJlZGlzIFB1Ymxpc2hlciIgIlB1Ymxpc2hlcyBldmVudHMgdG8gUmVkaXMuIiAiUHl0aG9uIgoKICAgICAgICAgICAgICAgICMgQ29tcG9uZW50IHJlbGF0aW9uc2hpcHMKICAgICAgICAgICAgICAgIGFwaSAtPiBib290c3RyYXAgIkluaXRpYWxpemVzIiAiTWV0aG9kIENhbGwiCiAgICAgICAgICAgICAgICBib290c3RyYXAgLT4gbWVzc2FnZUJ1cyAiSW5qZWN0cyBoYW5kbGVycyBpbnRvIiAiTWV0aG9kIENhbGwiCiAgICAgICAgICAgICAgICBhcGkgLT4gbWVzc2FnZUJ1cyAiRGlzcGF0Y2hlcyBjb21tYW5kcyB0byIgIk1ldGhvZCBDYWxsIgogICAgICAgICAgICAgICAgYXBpIC0+IHJlYWRNb2RlbFZpZXdzICJRdWVyaWVzIGRhdGEgZnJvbSIgIk1ldGhvZCBDYWxsIgogICAgICAgICAgICAgICAgcmVhZE1vZGVsVmlld3MgLT4gdW93ICJVc2VzIGZvciBkYXRhYmFzZSBzZXNzaW9uIiAiTWV0aG9kIENhbGwiCiAgICAgICAgICAgICAgICBtZXNzYWdlQnVzIC0+IGhhbmRsZXJzICJSb3V0ZXMgdG8iICJNZXRob2QgQ2FsbCIKICAgICAgICAgICAgICAgIGhhbmRsZXJzIC0+IHVvdyAiVXNlcyBmb3IgdHJhbnNhY3Rpb25zIiAiTWV0aG9kIENhbGwiCiAgICAgICAgICAgICAgICBoYW5kbGVycyAtPiBkb21haW5Nb2RlbCAiTXV0YXRlcyIgIk1ldGhvZCBDYWxsIgogICAgICAgICAgICAgICAgbWVzc2FnZUJ1cyAtPiB1b3cgIkNvbGxlY3RzIG5ldyBldmVudHMgZnJvbSBkb21haW4iICJNZXRob2QgQ2FsbCIKICAgICAgICAgICAgICAgIHVvdyAtPiByZXBvc2l0b3J5ICJQcm92aWRlcyBhY2Nlc3MgdG8iICJNZXRob2QgQ2FsbCIKICAgICAgICAgICAgICAgIHJlcG9zaXRvcnkgLT4gZG9tYWluTW9kZWwgIkxvYWRzIGFuZCBzYXZlcyIgIk1ldGhvZCBDYWxsIgogICAgICAgICAgICAgICAgaGFuZGxlcnMgLT4gZW1haWxBZGFwdGVyICJEaXNwYXRjaGVzIGV4dGVybmFsIGV2ZW50cyB0byIgIk1ldGhvZCBDYWxsIgogICAgICAgICAgICAgICAgaGFuZGxlcnMgLT4gcmVkaXNQdWJsaXNoZXIgIkRpc3BhdGNoZXMgZXh0ZXJuYWwgZXZlbnRzIHRvIiAiTWV0aG9kIENhbGwiCiAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICMgRXh0ZXJuYWwgY29ubmVjdGlvbnMgZnJvbSBjb21wb25lbnRzCiAgICAgICAgICAgICAgICByZXBvc2l0b3J5IC0+IGRhdGFiYXNlICJSZWFkcyBmcm9tIGFuZCB3cml0ZXMgdG8iICJTUUxBbGNoZW15IgogICAgICAgICAgICAgICAgdW93IC0+IGRhdGFiYXNlICJDb21taXRzIHRyYW5zYWN0aW9ucyB0byIgIlNRTEFsY2hlbXkiCiAgICAgICAgICAgICAgICBlbWFpbEFkYXB0ZXIgLT4gZW1haWxTeXN0ZW0gIlNlbmRzIGVtYWlscyB1c2luZyIgIlNNVFAiCiAgICAgICAgICAgICAgICByZWRpc1B1Ymxpc2hlciAtPiBtZXNzYWdlQnJva2VyICJQdWJsaXNoZXMgZXZlbnRzIHRvIiAiUmVkaXMgUHViL1N1YiIKICAgICAgICAgICAgfQogICAgICAgIH0KCiAgICAgICAgIyBSZWxhdGlvbnNoaXBzCiAgICAgICAgdXNlciAtPiBhcGkgIk1ha2VzIEFQSSBjYWxscyB0byIgIkpTT04vSFRUUCIKICAgICAgICByZWRpc1N1YnNjcmliZXIgLT4gbWVzc2FnZUJyb2tlciAiU3Vic2NyaWJlcyB0byBldmVudHMvY29tbWFuZHMgZnJvbSIgIlJlZGlzIFB1Yi9TdWIiCiAgICAgICAgd2FyZWhvdXNlU3lzdGVtIC0+IG1lc3NhZ2VCcm9rZXIgIlB1Ymxpc2hlcyBpbnZlbnRvcnkgY2hhbmdlIGNvbW1hbmRzIHRvIiAiUmVkaXMgUHViL1N1YiIKICAgIH0KCiAgICB2aWV3cyB7CiAgICAgICAgc3lzdGVtQ29udGV4dCBhbGxvY2F0aW9uU3lzdGVtICJTeXN0ZW1Db250ZXh0IiB7CiAgICAgICAgICAgIGluY2x1ZGUgKgogICAgICAgICAgICBhdXRvTGF5b3V0CiAgICAgICAgfQoKICAgICAgICBjb250YWluZXIgYWxsb2NhdGlvblN5c3RlbSAiQ29udGFpbmVycyIgewogICAgICAgICAgICBpbmNsdWRlICoKICAgICAgICAgICAgYXV0b0xheW91dAogICAgICAgIH0KCiAgICAgICAgY29tcG9uZW50IHdlYkFwaSAiV2ViQXBpQ29tcG9uZW50cyIgewogICAgICAgICAgICBpbmNsdWRlICoKICAgICAgICAgICAgYXV0b0xheW91dAogICAgICAgIH0KCiAgICAgICAgY29tcG9uZW50IGV2ZW50Q29uc3VtZXIgIkV2ZW50Q29uc3VtZXJDb21wb25lbnRzIiB7CiAgICAgICAgICAgIGluY2x1ZGUgKgogICAgICAgICAgICBhdXRvTGF5b3V0CiAgICAgICAgfQoKICAgICAgICBzdHlsZXMgewogICAgICAgICAgICBlbGVtZW50ICJTb2Z0d2FyZSBTeXN0ZW0iIHsKICAgICAgICAgICAgICAgIGJhY2tncm91bmQgIzExNjhiZAogICAgICAgICAgICAgICAgY29sb3IgI2ZmZmZmZgogICAgICAgICAgICB9CiAgICAgICAgICAgIGVsZW1lbnQgIlBlcnNvbiIgewogICAgICAgICAgICAgICAgc2hhcGUgcGVyc29uCiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kICMwODQyN2IKICAgICAgICAgICAgICAgIGNvbG9yICNmZmZmZmYKICAgICAgICAgICAgfQogICAgICAgICAgICBlbGVtZW50ICJDb250YWluZXIiIHsKICAgICAgICAgICAgICAgIGJhY2tncm91bmQgIzQzOGRkNQogICAgICAgICAgICAgICAgY29sb3IgI2ZmZmZmZgogICAgICAgICAgICB9CiAgICAgICAgICAgIGVsZW1lbnQgIkNvbXBvbmVudCIgewogICAgICAgICAgICAgICAgYmFja2dyb3VuZCAjODViYmYwCiAgICAgICAgICAgICAgICBjb2xvciAjMDAwMDAwCiAgICAgICAgICAgIH0KICAgICAgICAgICAgZWxlbWVudCAiRGF0YWJhc2UiIHsKICAgICAgICAgICAgICAgIHNoYXBlIGN5bGluZGVyCiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICB9Cgp9",
     "structurizr.inspection.info" : "0",
     "structurizr.inspection.ignore" : "0",
     "structurizr.inspection.warning" : "0"
@@ -499,7 +632,7 @@
         "rankSeparation" : 100,
         "vertices" : true
       },
-      "containerId" : "23",
+      "containerId" : "36",
       "elements" : [ {
         "id" : "1",
         "x" : 0,
@@ -517,39 +650,43 @@
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "24",
+        "id" : "37",
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "25",
+        "id" : "38",
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "26",
+        "id" : "39",
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "27",
+        "id" : "40",
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "28",
+        "id" : "41",
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "29",
+        "id" : "42",
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "30",
+        "id" : "43",
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "31",
+        "id" : "44",
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "32",
+        "id" : "45",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "46",
         "x" : 0,
         "y" : 0
       } ],
@@ -558,37 +695,41 @@
       "name" : "Component View: Allocation System - Web API",
       "order" : 3,
       "relationships" : [ {
-        "id" : "33"
-      }, {
-        "id" : "34"
-      }, {
-        "id" : "35"
-      }, {
-        "id" : "36"
-      }, {
-        "id" : "37"
-      }, {
-        "id" : "38"
-      }, {
-        "id" : "39"
-      }, {
-        "id" : "40"
-      }, {
-        "id" : "41"
-      }, {
-        "id" : "42"
-      }, {
-        "id" : "43"
-      }, {
-        "id" : "44"
-      }, {
-        "id" : "46"
-      }, {
         "id" : "47"
+      }, {
+        "id" : "48"
+      }, {
+        "id" : "49"
       }, {
         "id" : "50"
       }, {
+        "id" : "51"
+      }, {
         "id" : "52"
+      }, {
+        "id" : "53"
+      }, {
+        "id" : "54"
+      }, {
+        "id" : "55"
+      }, {
+        "id" : "56"
+      }, {
+        "id" : "57"
+      }, {
+        "id" : "58"
+      }, {
+        "id" : "59"
+      }, {
+        "id" : "60"
+      }, {
+        "id" : "62"
+      }, {
+        "id" : "63"
+      }, {
+        "id" : "65"
+      }, {
+        "id" : "67"
       } ]
     }, {
       "automaticLayout" : {
@@ -600,6 +741,10 @@
       },
       "containerId" : "7",
       "elements" : [ {
+        "id" : "2",
+        "x" : 0,
+        "y" : 0
+      }, {
         "id" : "5",
         "x" : 0,
         "y" : 0
@@ -631,18 +776,24 @@
         "id" : "13",
         "x" : 0,
         "y" : 0
+      }, {
+        "id" : "14",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "15",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "16",
+        "x" : 0,
+        "y" : 0
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "EventConsumerComponents",
       "name" : "Component View: Allocation System - Event Consumer",
       "order" : 4,
       "relationships" : [ {
-        "id" : "14"
-      }, {
-        "id" : "15"
-      }, {
-        "id" : "16"
-      }, {
         "id" : "17"
       }, {
         "id" : "18"
@@ -651,9 +802,29 @@
       }, {
         "id" : "20"
       }, {
+        "id" : "21"
+      }, {
         "id" : "22"
       }, {
-        "id" : "55"
+        "id" : "23"
+      }, {
+        "id" : "24"
+      }, {
+        "id" : "25"
+      }, {
+        "id" : "26"
+      }, {
+        "id" : "27"
+      }, {
+        "id" : "28"
+      }, {
+        "id" : "30"
+      }, {
+        "id" : "31"
+      }, {
+        "id" : "34"
+      }, {
+        "id" : "70"
       } ]
     } ],
     "configuration" : {
@@ -715,7 +886,7 @@
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "23",
+        "id" : "36",
         "x" : 0,
         "y" : 0
       } ],
@@ -724,19 +895,21 @@
       "name" : "Container View: Allocation System",
       "order" : 2,
       "relationships" : [ {
-        "id" : "21"
+        "id" : "29"
       }, {
-        "id" : "45"
+        "id" : "32"
       }, {
-        "id" : "48"
+        "id" : "35"
       }, {
-        "id" : "51"
+        "id" : "61"
       }, {
-        "id" : "53"
+        "id" : "64"
       }, {
-        "id" : "56"
+        "id" : "66"
       }, {
-        "id" : "57"
+        "id" : "68"
+      }, {
+        "id" : "71"
       } ],
       "softwareSystemId" : "4"
     } ],
@@ -770,11 +943,11 @@
       "name" : "System Context View: Allocation System",
       "order" : 1,
       "relationships" : [ {
-        "id" : "49"
+        "id" : "33"
       }, {
-        "id" : "54"
+        "id" : "69"
       }, {
-        "id" : "58"
+        "id" : "72"
       } ],
       "softwareSystemId" : "4"
     } ]

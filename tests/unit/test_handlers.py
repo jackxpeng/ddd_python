@@ -4,9 +4,11 @@ from allocation.service_layer.unit_of_work import AbstractUnitOfWork
 from allocation.service_layer import handlers
 from allocation.domain.model import Product, Batch
 from allocation.adapters.repository import AbstractRepository
+from allocation.adapters import notifications
 from allocation.service_layer.handlers import InvalidSku, allocate
 from allocation.domain import events, commands
 from allocation.service_layer import messagebus
+from allocation import bootstrap
 
 
 class FakeSession:
@@ -88,9 +90,21 @@ def test_sends_email_on_out_of_stock_error():
     uow = FakeUnitOfWork()
     handlers.add_batch(commands.CreateBatch("b1", "POPULAR-CURTAINS", 9), uow)
 
-    with mock.patch("allocation.adapters.email.send") as mock_email_send:
-        command = commands.Allocate("o1", "POPULAR-CURTAINS", 10)
-        messagebus.handle(command, uow)
-        mock_email_send.assert_called_once_with(
-            "stock@made.com", "Out of stock for POPULAR-CURTAINS"
-        )
+    class FakeNotifications(notifications.AbstractNotifications):
+        def __init__(self):
+            self.sent = []
+        def send(self, destination, message):
+            self.sent.append((destination, message))
+            
+    fake_notifications = FakeNotifications()
+    bus = bootstrap.bootstrap(
+        start_orm=False, 
+        uow=uow, 
+        notifications=fake_notifications,
+        publish=lambda *args: None,
+    )
+
+    command = commands.Allocate("o1", "POPULAR-CURTAINS", 10)
+    bus.handle(command)
+
+    assert fake_notifications.sent == [("stock@made.com", "Out of stock for POPULAR-CURTAINS")]

@@ -1,8 +1,9 @@
+from typing import Callable
 from dataclasses import asdict
 
+from allocation.adapters import notifications
 from allocation.domain import model, events, commands
 from allocation.service_layer import unit_of_work
-from allocation.adapters import email, redis_eventpublisher
 
 
 class InvalidSku(Exception):
@@ -59,15 +60,15 @@ def batch_quantity_change(
 
 
 def send_out_of_stock_notification(
-    event: events.OutOfStock, uow: unit_of_work.AbstractUnitOfWork
+    event: events.OutOfStock, notifications: notifications.AbstractNotifications
 ):
-    email.send("stock@made.com", f"Out of stock for {event.sku}")
+    notifications.send("stock@made.com", f"Out of stock for {event.sku}")
 
 
 def publish_allocated_event(
-    event: events.Allocated, uow: unit_of_work.AbstractUnitOfWork
+    event: events.Allocated, publish: Callable,
 ):
-    redis_eventpublisher.publish("line_allocated", event)
+    publish("line_allocated", event)
 
 
 def add_allocation_to_read_model(
@@ -77,10 +78,10 @@ def add_allocation_to_read_model(
     with uow:
         uow.session.execute(
             """
-            INSERT INTO allocations_view (orderid, sku, batchref)
-            VALUES (:orderid, :sku, :batchref)
+            INSERT INTO allocations_view (order_id, sku, batch_ref)
+            VALUES (:order_id, :sku, :batch_ref)
             """,
-            dict(orderid=event.order_id, sku=event.sku, batchref=event.batchref),
+            dict(order_id=event.order_id, sku=event.sku, batch_ref=event.batchref),
         )
         uow.commit()
 
@@ -93,8 +94,26 @@ def remove_allocation_from_read_model(
         uow.session.execute(
             """
             DELETE FROM allocations_view
-            WHERE orderid = :orderid AND sku = :sku
+            WHERE order_id = :order_id AND sku = :sku
             """,
-            dict(orderid=event.order_id, sku=event.sku),
+            dict(order_id=event.order_id, sku=event.sku),
         )
         uow.commit()
+
+COMMAND_HANDLERS = {
+    commands.CreateBatch: add_batch,
+    commands.Allocate: allocate,
+    commands.ChangeBatchQuantity: batch_quantity_change,
+}
+
+EVENT_HANDLERS = {
+    events.Allocated: [
+        publish_allocated_event,
+        add_allocation_to_read_model,
+    ],
+    events.Deallocated: [
+        remove_allocation_from_read_model,
+        reallocate,
+    ],
+    events.OutOfStock: [send_out_of_stock_notification],
+}

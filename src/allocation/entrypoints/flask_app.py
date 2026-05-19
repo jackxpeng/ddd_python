@@ -3,15 +3,11 @@ from flask import Flask, request, jsonify
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from allocation.adapters import orm
-from allocation.service_layer.unit_of_work import SqlAlchemyUnitOfWork
-from allocation.service_layer import handlers, messagebus
-import allocation.config as config
+from allocation import bootstrap, views
 from allocation.domain import commands
-from allocation import views
+from allocation.service_layer import handlers, unit_of_work
 
-orm.start_mappers()
-get_session = sessionmaker(bind=create_engine(config.get_postgres_uri()))
+bus = bootstrap.bootstrap()
 
 app = Flask(__name__)
 
@@ -24,8 +20,7 @@ def add_batch():
     command = commands.CreateBatch(
         request.json["ref"], request.json["sku"], request.json["qty"], eta
     )
-    uow = SqlAlchemyUnitOfWork(get_session)
-    messagebus.handle(command, uow)
+    bus.handle(command)
     return "OK", 201
 
 
@@ -34,14 +29,17 @@ def allocate_endpoint():
     command = commands.Allocate(
         request.json.get("orderid"), request.json.get("sku"), request.json.get("qty")
     )
-    uow = SqlAlchemyUnitOfWork(get_session)
-    messagebus.handle(command, uow)
+    bus.handle(command)
     return "OK", 202
 
-@app.route("/allocations/<orderid>", methods=["GET"])
-def allocations_view_endpoint(orderid):
-    uow = SqlAlchemyUnitOfWork(get_session)
-    result = views.allocations(orderid, uow)
+@app.route("/allocations/<order_id>", methods=["GET"])
+def allocations_view_endpoint(order_id):
+    session = unit_of_work.get_session()
+    try:
+        result = views.allocations(order_id, session)
+    finally:
+        session.close()
+        
     if not result:
         return "not found", 404
     return jsonify(result), 200
