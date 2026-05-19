@@ -5,7 +5,12 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 import allocation.config as config
 
-get_session = sessionmaker(bind=create_engine(config.get_postgres_uri()))
+get_session = sessionmaker(
+    bind=create_engine(
+        config.get_postgres_uri(),
+        isolation_level="REPEATABLE READ",
+    )
+)
 
 class AbstractUnitOfWork(ABC):
     products: repository.AbstractRepository

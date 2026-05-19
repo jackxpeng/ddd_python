@@ -79,6 +79,9 @@ class Product:
         # raise BatchNotFound(f"No batch with ref {ref_id} in product {self.sku}")
         batch = next(b for b in self.batches if b.ref_id == batch_ref_id)
         batch.qty = qty
+        
+        # Increment version number to trigger optimistic concurrency control
+        self.version_number += 1
 
         while batch.available_quantity < 0:
             line = batch.deallocate_one()

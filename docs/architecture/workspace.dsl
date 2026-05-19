@@ -58,7 +58,7 @@ workspace "Allocation Workspace" "Architecture of the Allocation System" {
                 bootstrap -> messageBus "Injects handlers into" "Method Call"
                 api -> messageBus "Dispatches commands to" "Method Call"
                 api -> readModelViews "Queries data from" "Method Call"
-                readModelViews -> uow "Uses for database session" "Method Call"
+                api -> uow "Gets database session from" "Method Call"
                 messageBus -> handlers "Routes to" "Method Call"
                 handlers -> uow "Uses for transactions" "Method Call"
                 handlers -> domainModel "Mutates" "Method Call"
@@ -71,6 +71,7 @@ workspace "Allocation Workspace" "Architecture of the Allocation System" {
                 # External connections from components
                 repository -> database "Reads from and writes to" "SQLAlchemy"
                 uow -> database "Commits transactions to" "SQLAlchemy"
+                readModelViews -> database "Executes raw SQL against" "SQLAlchemy"
                 emailAdapter -> emailSystem "Sends emails using" "SMTP"
                 redisPublisher -> messageBroker "Publishes events to" "Redis Pub/Sub"
             }

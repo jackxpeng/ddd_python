@@ -1,5 +1,9 @@
 import logging
 from typing import List, Dict, Callable, Type
+
+from sqlalchemy.exc import OperationalError
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+
 from allocation.domain import events, commands
 from allocation.service_layer import unit_of_work, handlers
 
@@ -18,6 +22,12 @@ class MessageBus:
         self.event_handlers = event_handlers
         self.command_handlers = command_handlers
 
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(),
+        retry=retry_if_exception_type(OperationalError),
+        reraise=True,
+    )
     def handle(self, message: Message):
         self.queue = [message]
         while self.queue:
