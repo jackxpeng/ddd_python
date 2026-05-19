@@ -1,6 +1,7 @@
 workspace "Allocation Workspace" "Architecture of the Allocation System" {
     configuration {
         scope softwaresystem
+        adrs docs/architecture
     }
     model {
         user = person "User" "A customer or system wanting to allocate stock."
